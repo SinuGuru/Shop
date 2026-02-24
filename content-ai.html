@@ -7,8 +7,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="content-ai.css"/>
+  <style>
+    #pw-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #fff0f9 0%, #f3e5f5 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #pw-gate .pw-box {
+      background: #fff; border-radius: 20px;
+      padding: 40px 36px; max-width: 380px; width: 90%;
+      box-shadow: 0 12px 40px rgba(233,30,140,0.15);
+      text-align: center;
+    }
+    #pw-gate .pw-logo { font-size: 2.4rem; margin-bottom: 8px; }
+    #pw-gate h2 { font-family: 'Playfair Display', serif; color: #e91e8c; margin-bottom: 6px; }
+    #pw-gate p  { color: #888; font-size: 0.9rem; margin-bottom: 22px; }
+    #pw-gate input {
+      width: 100%; padding: 12px 16px; border-radius: 10px;
+      border: 2px solid #f0aad4; font-size: 1rem; outline: none;
+      margin-bottom: 14px; box-sizing: border-box; text-align: center;
+      letter-spacing: 3px;
+    }
+    #pw-gate input:focus { border-color: #e91e8c; }
+    #pw-gate button {
+      width: 100%; padding: 13px; border-radius: 10px;
+      background: linear-gradient(135deg, #e91e8c, #9c27b0);
+      color: #fff; font-size: 1rem; font-weight: 600;
+      border: none; cursor: pointer;
+    }
+    #pw-gate .pw-error {
+      color: #e91e8c; font-size: 0.85rem;
+      margin-top: 10px; display: none;
+    }
+  </style>
+  <script>
+    // Check session — skip gate if already authenticated this session
+    if (sessionStorage.getItem("vk_ai_auth") === "1") {
+      document.addEventListener("DOMContentLoaded", () => {
+        const g = document.getElementById("pw-gate");
+        if (g) g.remove();
+      });
+    }
+    function checkPassword() {
+      const val = document.getElementById("pw-input").value;
+      if (val === "veronika") {
+        sessionStorage.setItem("vk_ai_auth", "1");
+        document.getElementById("pw-gate").remove();
+      } else {
+        document.getElementById("pw-error").style.display = "block";
+        document.getElementById("pw-input").value = "";
+        document.getElementById("pw-input").focus();
+      }
+    }
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && document.getElementById("pw-gate")) checkPassword();
+    });
+  </script>
 </head>
 <body>
+
+  <!-- PASSWORD GATE -->
+  <div id="pw-gate">
+    <div class="pw-box">
+      <div class="pw-logo">🌸</div>
+      <h2>VeronikaK AI Tools</h2>
+      <p>This page is private. Enter the password to continue.</p>
+      <input id="pw-input" type="password" placeholder="••••••••" autofocus />
+      <button onclick="checkPassword()">Enter</button>
+      <div class="pw-error" id="pw-error">Incorrect password. Try again.</div>
+    </div>
+  </div>
 
   <!-- NAVBAR -->
   <nav class="navbar">
