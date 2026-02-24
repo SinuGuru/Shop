@@ -170,6 +170,7 @@
         <button class="ai-tab" onclick="switchAiTab('calendar',this)">📅 Calendar</button>
         <button class="ai-tab" onclick="switchAiTab('stories',this)">📖 Stories</button>
         <button class="ai-tab" onclick="switchAiTab('bio',this)">✍️ Bio</button>
+        <button class="ai-tab" onclick="switchAiTab('targeting',this)">🎯 Targeting</button>
       </div>
       <!-- CAPTIONS -->
       <div id="ai-captions" class="ai-panel active">
@@ -235,6 +236,50 @@
           <button class="btn-generate" onclick="generateBio()"><i class="fas fa-sparkles"></i> Write Bio</button>
         </div>
         <div id="bio-output" class="ai-output"></div>
+      </div>
+
+      <!-- TARGETING -->
+      <div id="ai-targeting" class="ai-panel">
+        <div class="ai-form">
+          <label>What do you want to target?</label>
+          <select id="target-goal">
+            <option>Grow Instagram followers</option>
+            <option>Drive sales on Square shop</option>
+            <option>Promote a specific product</option>
+            <option>Reach gift buyers</option>
+            <option>Target parents / kids jewellery</option>
+            <option>Build brand awareness</option>
+          </select>
+          <label>Platform</label>
+          <select id="target-platform">
+            <option>Instagram</option>
+            <option>TikTok</option>
+            <option>Both Instagram &amp; TikTok</option>
+          </select>
+          <label>Specific product or occasion <small>(optional)</small></label>
+          <input type="text" id="target-product" placeholder="e.g. braided bracelet, Valentine's Day"/>
+          <button class="btn-generate" onclick="generateAudienceStrategy()">
+            <i class="fas fa-sparkles"></i> Generate Audience Strategy
+          </button>
+        </div>
+        <div id="targeting-output" class="ai-output"></div>
+
+        <div class="ai-form" style="margin-top:20px">
+          <label>Ideal Customer Profile</label>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:10px">Generate a detailed buyer persona for VeronikaK to guide your content and targeting decisions.</p>
+          <select id="icp-focus">
+            <option>General — all products</option>
+            <option>Beaded bracelets</option>
+            <option>Braided bracelets</option>
+            <option>Kids jewellery</option>
+            <option>Earrings</option>
+            <option>Gift buyers</option>
+          </select>
+          <button class="btn-generate" onclick="generateCustomerProfile()">
+            <i class="fas fa-user-circle"></i> Build Customer Profile
+          </button>
+        </div>
+        <div id="icp-output" class="ai-output"></div>
       </div>
     </div>
 

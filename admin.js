@@ -296,10 +296,16 @@ function useFallback(prompt) {
 }
 
 function outputCard(content, extraClass = "") {
+  // Render basic markdown: **bold**, ## headers, numbered/bullet lists
+  const html = content
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/^#{1,3}\s+(.+)$/gm, "<strong style='font-size:1rem'>$1</strong>")
+    .replace(/\n/g, "<br>");
   return `<div class="output-card ${extraClass}">
-    <pre>${content}</pre>
+    <div style="font-size:.88rem;line-height:1.8">${html}</div>
     <div class="output-actions">
-      <button class="copy-btn" onclick="navigator.clipboard.writeText(this.closest('.output-card').querySelector('pre').textContent).then(()=>{this.textContent='✅ Copied!';setTimeout(()=>this.textContent='📋 Copy',1500)})">📋 Copy</button>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText(this.closest('.output-card').querySelector('div').innerText).then(()=>{this.textContent='\u2705 Copied!';setTimeout(()=>this.textContent='\ud83d\udccb Copy',1500)})">📋 Copy</button>
     </div>
   </div>`;
 }
@@ -361,6 +367,50 @@ async function generateStoryIdeas() {
   showLoading("story-output");
   const result = await callGPT(`Give 5 Instagram Story ideas for VeronikaK jewellery shop with goal: "${goal}". Each idea should be concrete and actionable. Number them 1-5.`);
   document.getElementById("story-output").innerHTML = outputCard(result);
+}
+
+// ── Audience Strategy ────────────────────────────────────────────
+async function generateAudienceStrategy() {
+  const goal     = document.getElementById("target-goal").value;
+  const platform = document.getElementById("target-platform").value;
+  const product  = document.getElementById("target-product").value;
+  showLoading("targeting-output");
+  const extra = product ? ` Focus: "${product}".` : "";
+  const result = await callGPT(
+    `Create a detailed ${platform} audience targeting strategy for VeronikaK (UK handmade jewellery, all £6). Goal: ${goal}.${extra}
+Include:
+1. **Primary audience** — age, gender, location, interests to target
+2. **Secondary audience** — a niche group to also reach
+3. **Interests & topics** to use in ${platform} targeting (list 10-15 specific ones)
+4. **Accounts / pages** they likely follow (influencers, brands, hashtag communities)
+5. **Best posting times** for UK audience on ${platform}
+6. **Content hook** — one sentence that grabs this exact audience
+Format clearly with bold headers.`,
+    `You are a social media marketing expert specialising in UK small businesses and handmade products.`
+  );
+  document.getElementById("targeting-output").innerHTML = outputCard(result);
+}
+
+// ── Ideal Customer Profile ────────────────────────────────────────
+async function generateCustomerProfile() {
+  const focus = document.getElementById("icp-focus").value;
+  showLoading("icp-output");
+  const result = await callGPT(
+    `Create a detailed Ideal Customer Profile (buyer persona) for VeronikaK, a UK handmade jewellery shop. Focus: ${focus}. All items £6.
+Include:
+- **Name & age** (fictional persona)
+- **Location** (UK specific)
+- **Lifestyle & values**
+- **Why they buy handmade jewellery**
+- **Where they spend time online** (platforms, accounts, communities)
+- **What content stops their scroll**
+- **Purchase triggers** — what makes them actually buy
+- **Objections** — what might stop them buying and how to overcome it
+- **Best way to reach them** — 3 specific content/ad ideas tailored to this person
+Make it vivid, specific and actionable.`,
+    `You are a consumer psychology and marketing expert specialising in UK e-commerce and handmade goods.`
+  );
+  document.getElementById("icp-output").innerHTML = outputCard(result);
 }
 
 // ── Bio ──────────────────────────────────────────────────────────
