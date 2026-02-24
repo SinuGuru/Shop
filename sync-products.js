@@ -234,10 +234,8 @@ async function main() {
       imageUrl = await fetchSquareImageUrl(imageIds[0]);
     }
 
-    // Build Square product URL (slugified name + item ID)
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const varId = variation?.id || "";
-    const url = `${SHOP_URL}/product/${slug}/${item.id.replace(/[^0-9]/g,"").slice(-2) || "1"}`;
+    // Link to Square shop homepage (individual product URLs can't be reliably derived from the API)
+    const url = SHOP_URL;
 
     process.stdout.write(`  [${String(i+1).padStart(2)}/${catalogItems.length}] ${name}...`);
 
