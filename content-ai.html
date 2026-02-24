@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="content-ai.css"/>
   <style>
+    body.pw-locked > *:not(#pw-gate) { display: none !important; }
     #pw-gate {
       position: fixed; inset: 0; z-index: 9999;
       background: linear-gradient(135deg, #fff0f9 0%, #f3e5f5 100%);
@@ -41,18 +42,18 @@
     }
   </style>
   <script>
-    // Check session — skip gate if already authenticated this session
+    // Lock body immediately before DOM paints
+    document.documentElement.classList.add("pw-locked");
     if (sessionStorage.getItem("vk_ai_auth") === "1") {
-      document.addEventListener("DOMContentLoaded", () => {
-        const g = document.getElementById("pw-gate");
-        if (g) g.remove();
-      });
+      document.documentElement.classList.remove("pw-locked");
     }
     function checkPassword() {
       const val = document.getElementById("pw-input").value;
       if (val === "veronika") {
         sessionStorage.setItem("vk_ai_auth", "1");
         document.getElementById("pw-gate").remove();
+        document.documentElement.classList.remove("pw-locked");
+        document.body.classList.remove("pw-locked");
       } else {
         document.getElementById("pw-error").style.display = "block";
         document.getElementById("pw-input").value = "";

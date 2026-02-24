@@ -266,7 +266,7 @@ const reelScripts = {
   gifting: (product, duration) => ({
     title: `🎁 Gift Idea — ${product}`,
     steps: [
-      { label: "HOOK (0–3s)", text: `Text: "The best gift under $15 🎁😭" — show bracelet in gift wrapping.` },
+      { label: "HOOK (0–3s)", text: `Text: "The best gift under £10 🎁😭" — show bracelet in gift wrapping.` },
       { label: "STORY (4–20s)", text: `"My [mom/friend/sister] cried when I gave her this custom bracelet 😭💕" — show reaction clip or photo if you have one.` },
       { label: "FEATURES (21–${duration - 5}s)", text: `Quick cuts showing: custom name option, colors, packaging. Text overlays: "Custom Name ✅ Gift Box ✅ Fast Ship ✅"` },
       { label: "CTA (last 5s)", text: `"Order yours — she will LOVE it 💖 Link in bio!"` },
@@ -470,7 +470,7 @@ const calendarPlans = {
       { day: "Monday", type: "Product Reel 🎬", content: "Feature your best-selling bracelet. Show it on wrist. Clear price. Direct CTA: 'Order via link in bio 💌'" },
       { day: "Tuesday", type: "Limited Offer 🔥", content: "Flash deal post: '48-hour discount on [product]!' Creates urgency. Use countdown sticker in stories." },
       { day: "Wednesday", type: "Testimonial 💬", content: "Share a customer review or DM screenshot (with permission). Caption: 'This is why I love what I do 💕'" },
-      { day: "Thursday", type: "Gift Idea Reel 🎁", content: "'Perfect gift under $15 🎁' — show bracelet being gift-wrapped. Great for gifting occasions." },
+      { day: "Thursday", type: "Gift Idea Reel 🎁", content: "'Perfect gift under £10 🎁' — show bracelet being gift-wrapped. Great for gifting occasions." },
       { day: "Friday", type: "New Drop Tease 👀", content: "Blur or partially hide a new product. 'Dropping this tomorrow… 👀' — builds anticipation." },
       { day: "Saturday", type: "New Drop Launch 🚀", content: "Full reveal of the product teased yesterday. Price, how to order, limited stock warning." },
       { day: "Sunday", type: "Weekly Wrap-up 📦", content: "Show orders packed and ready to ship. Creates FOMO. 'Packing this week's orders 🥹💕 Yours could be next!'" }
@@ -550,7 +550,7 @@ const storyIdeas = {
   engagement: [
     { title: "This or That Poll 🗳️", desc: "Two bracelet options. 'Which would YOU wear?' — super easy to vote on, massive engagement boost." },
     { title: "Question Box ❓", desc: "'Ask me anything about my bracelets!' — turns followers into conversations and creates content ideas." },
-    { title: "Quiz: Guess the Price 💰", desc: "Show bracelet, ask 'How much do you think this costs?' Options: $5 / $10 / $20. Reveal answer + link to buy." },
+    { title: "Quiz: Guess the Price 💰", desc: "Show bracelet, ask 'How much do you think this costs?' Options: £4 / £6 / £10. Reveal answer + link to buy." },
     { title: "Emoji Slider 🎚️", desc: "'How much do you love this color? 💕' with the heart emoji slider — people love tapping it." },
     { title: "Countdown Timer ⏰", desc: "'SALE ends in:' with a countdown sticker. Creates urgency even with 0 budget." }
   ],
