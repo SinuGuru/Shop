@@ -9,7 +9,7 @@
 const CONFIG = {
   // Your WhatsApp phone number (international format, no +, no spaces)
   // Example: "601123456789" for Malaysia, "12025550123" for US
-  whatsappNumber: "YOUR_PHONE_NUMBER",
+  whatsappNumber: "447584587747",
 
   // Optional: Add your OpenAI API key for smarter AI responses
   // Leave empty "" to use the built-in smart auto-reply system (free, no API needed)
