@@ -154,7 +154,12 @@ function renderProducts() {
 
   grid.innerHTML = products.map(p => `
     <div class="product-card" onclick="goToProduct('${p.url}')">
-      <div class="product-img" style="background:${p.bg};">${p.emoji}</div>
+      <div class="product-img" style="background:${p.bg};">
+        ${p.imageUrl
+          ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">`
+          : p.emoji
+        }
+      </div>
       <div class="product-body">
         <span class="product-tag">${p.tag}</span>
         <h3>${p.name}</h3>
