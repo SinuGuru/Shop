@@ -18,7 +18,7 @@ const products = [
     emoji: "⭐",
     bg: "#fff0f9",
     url: "https://sinuguru.square.site/product/12mm-round-beaded-with-golden-coloured-stars-bracelet/1",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/5Y27AAL7DAPGLTJHNXAIA242.jpeg"
+    imageUrl: "images/product-01.jpeg"
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ const products = [
     emoji: "🤎",
     bg: "#efebe9",
     url: "https://sinuguru.square.site/product/10mm-brown-yellow-round-beaded-with-golden-coloured-stars-bracelet/5",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/ZXRIUAYDJEZ7L72YHWO4FLQ3.jpeg"
+    imageUrl: "images/product-02.jpeg"
   },
   {
     id: 3,
@@ -42,7 +42,7 @@ const products = [
     emoji: "🤎",
     bg: "#efebe9",
     url: "https://sinuguru.square.site/product/10mm-brown-yellow-round-beaded-with-golden-coloured-octahedron-bracelet/6",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/LI2HWXCYHUSAWQ26NNT3PQ4S.jpeg"
+    imageUrl: "images/product-03.jpeg"
   },
   {
     id: 4,
@@ -54,7 +54,7 @@ const products = [
     emoji: "💙",
     bg: "#e3f2fd",
     url: "https://sinuguru.square.site/product/8mm-blue-and-yellow-round-beaded-with-golden-coloured-cube-and-barrell-bracelet/7",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/5Q7A34DWUBMZGI4M37GH2F63.jpeg"
+    imageUrl: "images/product-04.jpeg"
   },
   {
     id: 5,
@@ -66,7 +66,7 @@ const products = [
     emoji: "🔮",
     bg: "#e8eaf6",
     url: "https://sinuguru.square.site/product/clear-1/10",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/TCUKGCCENAJ2MM66RCGPCO5K.jpeg"
+    imageUrl: "images/product-05.jpeg"
   },
   {
     id: 6,
@@ -78,7 +78,7 @@ const products = [
     emoji: "🔮",
     bg: "#e8eaf6",
     url: "https://sinuguru.square.site/product/clear-2/11",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/E7QO43DOMY344RV5ALVY3FOA.jpeg"
+    imageUrl: "images/product-06.jpeg"
   },
   {
     id: 7,
@@ -90,7 +90,7 @@ const products = [
     emoji: "🪩",
     bg: "#fff0f9",
     url: "https://sinuguru.square.site/product/type-5/18",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/3EKASOZ2ZBSV6U6U433BYMSB.jpeg"
+    imageUrl: "images/product-07.jpeg"
   },
   {
     id: 8,
@@ -102,7 +102,7 @@ const products = [
     emoji: "🔮",
     bg: "#fff0f9",
     url: "https://sinuguru.square.site/product/type-6/19",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/N7UZIA3PGBSSLV4ZVPSUMSOL.jpeg"
+    imageUrl: "images/product-08.jpeg"
   },
   {
     id: 9,
@@ -114,7 +114,7 @@ const products = [
     emoji: "🌟",
     bg: "#fff0f9",
     url: "https://sinuguru.square.site/product/type-8/21",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/HC2IVTQYK3Y74DEUE6WAG6ZF.jpeg"
+    imageUrl: "images/product-09.jpeg"
   },
   {
     id: 10,
@@ -126,7 +126,7 @@ const products = [
     emoji: "🎋",
     bg: "#f1f8e9",
     url: "https://sinuguru.square.site/product/braided-3/25",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/LFB6X7O57LNVHMNB366DS3TR.jpeg"
+    imageUrl: "images/product-10.jpeg"
   },
   {
     id: 11,
@@ -138,7 +138,7 @@ const products = [
     emoji: "🪢",
     bg: "#f1f8e9",
     url: "https://sinuguru.square.site/product/braided-6/28",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/3UKCEOIAO36WEKWXSPLPMJYC.jpeg"
+    imageUrl: "images/product-11.jpeg"
   },
   {
     id: 12,
@@ -150,7 +150,7 @@ const products = [
     emoji: "🌻",
     bg: "#f1f8e9",
     url: "https://sinuguru.square.site/product/braided-9/31",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/DKJMKD6KBFG4HVPLO45ZG7GW.jpeg"
+    imageUrl: "images/product-12.jpeg"
   },
   {
     id: 13,
@@ -162,7 +162,7 @@ const products = [
     emoji: "🍃",
     bg: "#f1f8e9",
     url: "https://sinuguru.square.site/product/braided-10/32",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/QZGUREZWIXQ3AZFSLV2EYWRM.jpeg"
+    imageUrl: "images/product-13.jpeg"
   },
   {
     id: 14,
@@ -174,7 +174,7 @@ const products = [
     emoji: "🌻",
     bg: "#f1f8e9",
     url: "https://sinuguru.square.site/product/braided-12/34",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/PN3BLRQQWVW633QFYUZM5CYM.jpeg"
+    imageUrl: "images/product-14.jpeg"
   },
   {
     id: 15,
@@ -186,7 +186,7 @@ const products = [
     emoji: "🎀",
     bg: "#e8f5e9",
     url: "https://sinuguru.square.site/product/kids-1/36",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/5Q74VKAAXWRTI7RZER3VPNFV.jpeg"
+    imageUrl: "images/product-15.jpeg"
   },
   {
     id: 16,
@@ -198,7 +198,7 @@ const products = [
     emoji: "🎀",
     bg: "#e8f5e9",
     url: "https://sinuguru.square.site/product/kid-2/37",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/VWLIZCN223632HPC4WFCQDEW.jpeg"
+    imageUrl: "images/product-16.jpeg"
   },
   {
     id: 17,
@@ -210,7 +210,7 @@ const products = [
     emoji: "🎡",
     bg: "#e8f5e9",
     url: "https://sinuguru.square.site/product/kids-3/38",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/L46IERIFEGFH6JZGTXQWCJL7.jpeg"
+    imageUrl: "images/product-17.jpeg"
   },
   {
     id: 18,
@@ -222,7 +222,7 @@ const products = [
     emoji: "🌺",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-2/40",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/K3ZEIIE5HISVLLYMHNUK44Y3.jpeg"
+    imageUrl: "images/product-18.jpeg"
   },
   {
     id: 19,
@@ -234,7 +234,7 @@ const products = [
     emoji: "✨",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-3/41",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/SWT7AOC5HXOIE2FQO3U3BMI4.jpeg"
+    imageUrl: "images/product-19.jpeg"
   },
   {
     id: 20,
@@ -246,7 +246,7 @@ const products = [
     emoji: "🪩",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-5/43",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/SWT7AOC5HXOIE2FQO3U3BMI4.jpeg"
+    imageUrl: "images/product-20.jpeg"
   },
   {
     id: 21,
@@ -258,7 +258,7 @@ const products = [
     emoji: "🪩",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-6/44",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/HXAPDOHMNQHBLLGDK4RWN3NE.jpeg"
+    imageUrl: "images/product-21.jpeg"
   },
   {
     id: 22,
@@ -270,7 +270,7 @@ const products = [
     emoji: "🌺",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-7/45",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/DJBQGG7HDQWZ5BKZYHB2JG4F.jpeg"
+    imageUrl: "images/product-22.jpeg"
   },
   {
     id: 23,
@@ -282,7 +282,7 @@ const products = [
     emoji: "💜",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-8/46",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/47BMG74I6NDAZ7VMFIJZ2R5G.jpeg"
+    imageUrl: "images/product-23.jpeg"
   },
   {
     id: 24,
@@ -294,7 +294,7 @@ const products = [
     emoji: "💜",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-9/47",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/XXOLI4BSZY2GEJ33NAODUDCS.jpeg"
+    imageUrl: "images/product-24.jpeg"
   },
   {
     id: 25,
@@ -306,6 +306,6 @@ const products = [
     emoji: "🪩",
     bg: "#fce4f3",
     url: "https://sinuguru.square.site/product/earrings-10/48",
-    imageUrl: "https://142382740.cdn6.editmysite.com/uploads/1/4/2/3/142382740/YOZI24IXR6YTSPP7Y6HJPO66.jpeg"
+    imageUrl: "images/product-25.jpeg"
   }
 ];
