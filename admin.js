@@ -8,6 +8,10 @@ let editingIndex = -1;  // -1 = new product
 let savedApiKey    = localStorage.getItem("vk_openai_key")  || "";
 let savedSquareKey = localStorage.getItem("vk_square_key") || "";
 
+// Use /api/gpt proxy when deployed on Vercel (keys stay server-side)
+const USE_VERCEL_PROXY = !["localhost","127.0.0.1"].includes(location.hostname)
+                       && !location.hostname.includes("github.io");
+
 // ── Init ─────────────────────────────────────────────────────
 function initAdmin() {
   // Deep-clone products array from products.js — work on our own copy
@@ -270,9 +274,21 @@ function showApiStatus(msg, color) {
 
 // ── GPT caller ─────────────────────────────────────────────────
 async function callGPT(prompt, systemPrompt) {
-  if (!savedApiKey) return useFallback(prompt);
   const sys = systemPrompt || `You are an expert social media content creator for "VeronikaK" (sinuguru.square.site), a UK handmade jewellery shop selling beaded bracelets, braided bracelets, kids jewellery, and earrings. All items are £6. Location: UK.`;
   try {
+    // On Vercel: use server-side proxy (API key stays secret)
+    if (USE_VERCEL_PROXY) {
+      const res = await fetch("/api/gpt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, systemPrompt: sys, max_tokens: 600 })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data.result;
+    }
+    // On GitHub Pages / localhost: use key from localStorage
+    if (!savedApiKey) return useFallback(prompt);
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${savedApiKey}`, "Content-Type": "application/json" },
