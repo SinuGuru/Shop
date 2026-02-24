@@ -16,7 +16,7 @@ const products = [
     price: "Â£6.00",
     emoji: "â­",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/12mm-round-beaded-with-golden-coloured-stars-bracelet/1",
     imageUrl: "images/product-01.jpeg"
   },
   {
@@ -28,7 +28,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’™",
     bg: "#e3f2fd",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/12mm-blue-coral-rainbow-beaded-bracelet/2",
     imageUrl: "images/product-02.jpeg"
   },
   {
@@ -40,7 +40,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’œ",
     bg: "#f3e5f5",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/10mm-purple-round-beaded-with-golden-coloured-stars-bracelet/3",
     imageUrl: "images/product-03.jpeg"
   },
   {
@@ -52,7 +52,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ¤Ž",
     bg: "#efebe9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/10mm-brown-round-beaded-with-golden-coloured-stars-bracelet/4",
     imageUrl: "images/product-04.jpeg"
   },
   {
@@ -64,7 +64,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ¤Ž",
     bg: "#efebe9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/10mm-brown-yellow-round-beaded-with-golden-coloured-stars-bracelet/5",
     imageUrl: "images/product-05.jpeg"
   },
   {
@@ -76,7 +76,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ¤Ž",
     bg: "#efebe9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/10mm-brown-yellow-round-beaded-with-golden-coloured-octahedron-bracelet/6",
     imageUrl: "images/product-06.jpeg"
   },
   {
@@ -88,7 +88,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’™",
     bg: "#e3f2fd",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/8mm-blue-and-yellow-round-beaded-with-golden-coloured-cube-and-barrell-bracelet/7",
     imageUrl: "images/product-07.jpeg"
   },
   {
@@ -100,7 +100,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’Ž",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/8mm/8",
     imageUrl: "images/product-08.jpeg"
   },
   {
@@ -112,7 +112,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ”®",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/6mm/9",
     imageUrl: "images/product-09.jpeg"
   },
   {
@@ -124,7 +124,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ”®",
     bg: "#e8eaf6",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/clear-1/10",
     imageUrl: "images/product-10.jpeg"
   },
   {
@@ -136,7 +136,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ”®",
     bg: "#e8eaf6",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/clear-2/11",
     imageUrl: "images/product-11.jpeg"
   },
   {
@@ -148,7 +148,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ”®",
     bg: "#e8eaf6",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/clear-3/12",
     imageUrl: "images/product-12.jpeg"
   },
   {
@@ -160,7 +160,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒŸ",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-1/14",
     imageUrl: "images/product-13.jpeg"
   },
   {
@@ -172,7 +172,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸª©",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-3/16",
     imageUrl: "images/product-14.jpeg"
   },
   {
@@ -184,7 +184,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’Ž",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-4/17",
     imageUrl: "images/product-15.jpeg"
   },
   {
@@ -196,7 +196,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ”®",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-5/18",
     imageUrl: "images/product-16.jpeg"
   },
   {
@@ -208,7 +208,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒŸ",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-6/19",
     imageUrl: "images/product-17.jpeg"
   },
   {
@@ -220,7 +220,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ”®",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-7/20",
     imageUrl: "images/product-18.jpeg"
   },
   {
@@ -232,7 +232,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒŸ",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-8/21",
     imageUrl: "images/product-19.jpeg"
   },
   {
@@ -244,7 +244,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸª©",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/type-9/22",
     imageUrl: "images/product-20.jpeg"
   },
   {
@@ -256,7 +256,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŽ‹",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-1/23",
     imageUrl: "images/product-21.jpeg"
   },
   {
@@ -268,7 +268,7 @@ const products = [
     price: "Â£6.00",
     emoji: "âœ¨",
     bg: "#fff0f9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braid-2/24",
     imageUrl: "images/product-22.jpeg"
   },
   {
@@ -280,7 +280,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒ»",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-3/25",
     imageUrl: "images/product-23.jpeg"
   },
   {
@@ -292,7 +292,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒ»",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-4/26",
     imageUrl: "images/product-24.jpeg"
   },
   {
@@ -304,7 +304,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŽ‹",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-5/27",
     imageUrl: "images/product-25.jpeg"
   },
   {
@@ -316,7 +316,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŽ‹",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-6/28",
     imageUrl: "images/product-26.jpeg"
   },
   {
@@ -328,7 +328,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸƒ",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-7/29",
     imageUrl: "images/product-27.jpeg"
   },
   {
@@ -340,7 +340,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒ»",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-8/30",
     imageUrl: "images/product-28.jpeg"
   },
   {
@@ -352,7 +352,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸƒ",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-9/31",
     imageUrl: "images/product-29.jpeg"
   },
   {
@@ -364,7 +364,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒ»",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-10/32",
     imageUrl: "images/product-30.jpeg"
   },
   {
@@ -376,7 +376,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸª¢",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-11/33",
     imageUrl: "images/product-31.jpeg"
   },
   {
@@ -388,7 +388,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŽ‹",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-12/34",
     imageUrl: "images/product-32.jpeg"
   },
   {
@@ -400,7 +400,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒ¾",
     bg: "#f1f8e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/braided-13/35",
     imageUrl: "images/product-33.jpeg"
   },
   {
@@ -412,7 +412,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŽ¡",
     bg: "#e8f5e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/kids-1/36",
     imageUrl: "images/product-34.jpeg"
   },
   {
@@ -424,7 +424,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŽ ",
     bg: "#e8f5e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/kid-2/37",
     imageUrl: "images/product-35.jpeg"
   },
   {
@@ -436,7 +436,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŽ ",
     bg: "#e8f5e9",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/kids-3/38",
     imageUrl: "images/product-36.jpeg"
   },
   {
@@ -448,7 +448,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒ¸",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-1/39",
     imageUrl: "images/product-37.jpeg"
   },
   {
@@ -460,7 +460,7 @@ const products = [
     price: "Â£6.00",
     emoji: "âœ¨",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-2/40",
     imageUrl: "images/product-38.jpeg"
   },
   {
@@ -472,7 +472,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒº",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-3/41",
     imageUrl: "images/product-39.jpeg"
   },
   {
@@ -484,7 +484,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒ¸",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-4/42",
     imageUrl: "images/product-40.jpeg"
   },
   {
@@ -496,7 +496,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’œ",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-5/43",
     imageUrl: "images/product-41.jpeg"
   },
   {
@@ -508,7 +508,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’Ž",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-6/44",
     imageUrl: "images/product-42.jpeg"
   },
   {
@@ -520,7 +520,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒº",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-7/45",
     imageUrl: "images/product-43.jpeg"
   },
   {
@@ -532,7 +532,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒº",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-8/46",
     imageUrl: "images/product-44.jpeg"
   },
   {
@@ -544,7 +544,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸŒº",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-9/47",
     imageUrl: "images/product-45.jpeg"
   },
   {
@@ -556,7 +556,7 @@ const products = [
     price: "Â£6.00",
     emoji: "ðŸ’Ž",
     bg: "#fce4f3",
-    url: "https://sinuguru.square.site",
+    url: "https://sinuguru.square.site/product/earrings-10/48",
     imageUrl: "images/product-46.jpeg"
   }
 ];

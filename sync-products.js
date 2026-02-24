@@ -212,6 +212,11 @@ async function main() {
   // Step 1: Fetch from Square API
   const catalogItems = await fetchSquareCatalog();
 
+  // Step 1b: Fetch real product URLs from sitemap
+  info("Fetching product URLs from sitemap...");
+  const sitemapUrls = await fetchSitemapUrls();
+  ok(`Found ${sitemapUrls.length} product URLs in sitemap`);
+
   // Step 2: Process each item
   info("Processing products...");
   const finalProducts = [];
@@ -235,7 +240,7 @@ async function main() {
     }
 
     // Link to Square shop homepage (individual product URLs can't be reliably derived from the API)
-    const url = SHOP_URL;
+    const url = matchProductUrl(name, sitemapUrls);
 
     process.stdout.write(`  [${String(i+1).padStart(2)}/${catalogItems.length}] ${name}...`);
 
