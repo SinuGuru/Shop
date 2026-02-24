@@ -1,0 +1,13 @@
+{
+  "name": "veronikak-shop",
+  "version": "1.0.0",
+  "description": "VeronikaK Shop tools",
+  "scripts": {
+    "sync": "node sync-products.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0",
+    "openai": "^4.28.0"
+  }
+}

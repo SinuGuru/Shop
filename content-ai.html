@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Content Manager – VeronikaK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="content-ai.css"/>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">🌸 VeronikaK</a>
+    <div class="nav-right">
+      <a href="index.html" class="nav-back"><i class="fas fa-arrow-left"></i> Back to Shop</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="ai-hero">
+    <div class="ai-hero-content">
+      <span class="hero-badge">🤖 Powered by AI</span>
+      <h1>AI Content <span class="highlight">Manager</span></h1>
+      <p>Auto-generate Instagram captions, Reels scripts, hashtags & weekly content plans — tailored for VeronikaK handmade jewellery.</p>
+    </div>
+  </section>
+
+  <!-- API KEY SETUP -->
+  <div class="api-setup-bar" id="api-setup-bar">
+    <div class="api-setup-inner">
+      <span class="api-icon">🔑</span>
+      <div>
+        <strong>Add OpenAI API Key for smarter content</strong>
+        <span>(Optional — the built-in generator works without it)</span>
+      </div>
+      <div class="api-input-row">
+        <input type="password" id="api-key-input" placeholder="sk-..." />
+        <button onclick="saveApiKey()">Save Key</button>
+      </div>
+      <span class="api-status" id="api-status"></span>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div class="dashboard">
+
+    <!-- SIDEBAR TABS -->
+    <div class="sidebar">
+      <button class="tab-btn active" onclick="switchTab('captions', this)">
+        <i class="fab fa-instagram"></i>
+        <span>Instagram Captions</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('reels', this)">
+        <i class="fas fa-film"></i>
+        <span>Reels Scripts</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('hashtags', this)">
+        <i class="fas fa-hashtag"></i>
+        <span>Hashtag Sets</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('calendar', this)">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Content Calendar</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('stories', this)">
+        <i class="fas fa-circle-notch"></i>
+        <span>Story Ideas</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('bio', this)">
+        <i class="fas fa-user-edit"></i>
+        <span>Bio & Profile</span>
+      </button>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-tip">
+        <span>💡 Tip: Post at 7–9am or 7–10pm for best reach</span>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+
+      <!-- ======= CAPTIONS TAB ======= -->
+      <div class="tab-panel active" id="tab-captions">
+        <div class="panel-header">
+          <h2><i class="fab fa-instagram"></i> Instagram Caption Generator</h2>
+          <p>Generate engaging captions that attract customers and drive orders.</p>
+        </div>
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Product / Bracelet Name</label>
+              <input type="text" id="cap-product" placeholder="e.g. Rainbow Stretch Bracelet" />
+            </div>
+            <div class="form-group">
+              <label>Target Audience</label>
+              <select id="cap-audience">
+                <option value="women">Women (general)</option>
+                <option value="teens">Teens & Young Adults</option>
+                <option value="moms">Moms & Gift Buyers</option>
+                <option value="brides">Brides & Weddings</option>
+                <option value="all">Everyone</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tone / Vibe</label>
+              <select id="cap-tone">
+                <option value="fun">Fun & Playful 🎉</option>
+                <option value="elegant">Elegant & Classy ✨</option>
+                <option value="urgent">Urgency / Limited Stock 🔥</option>
+                <option value="emotional">Emotional & Heartfelt 💕</option>
+                <option value="promo">Promotional / Sale 💰</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Price (optional)</label>
+              <input type="text" id="cap-price" placeholder="e.g. $9" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Special Details (optional)</label>
+            <input type="text" id="cap-details" placeholder="e.g. limited edition, custom colors, birthday gift" />
+          </div>
+          <button class="generate-btn" onclick="generateCaptions()">
+            <i class="fas fa-magic"></i> Generate 3 Captions
+          </button>
+        </div>
+        <div class="output-area" id="cap-output"></div>
+      </div>
+
+      <!-- ======= REELS TAB ======= -->
+      <div class="tab-panel" id="tab-reels">
+        <div class="panel-header">
+          <h2><i class="fas fa-film"></i> Reels & TikTok Script Generator</h2>
+          <p>Ready-to-film video scripts with hooks, actions, and captions.</p>
+        </div>
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Video Type</label>
+              <select id="reel-type">
+                <option value="making">Making Process (satisfying)</option>
+                <option value="reveal">Product Reveal / Unboxing</option>
+                <option value="styling">How to Style / Wear</option>
+                <option value="gifting">Gift Idea Video</option>
+                <option value="pov">POV Customer Story</option>
+                <option value="trending">Trending Audio Hook</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Duration</label>
+              <select id="reel-duration">
+                <option value="15">15 seconds (max reach)</option>
+                <option value="30">30 seconds</option>
+                <option value="60">60 seconds</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Product Focus</label>
+            <input type="text" id="reel-product" placeholder="e.g. Custom Name Bracelet" />
+          </div>
+          <button class="generate-btn" onclick="generateReelScript()">
+            <i class="fas fa-clapperboard"></i> Generate Script
+          </button>
+        </div>
+        <div class="output-area" id="reel-output"></div>
+      </div>
+
+      <!-- ======= HASHTAGS TAB ======= -->
+      <div class="tab-panel" id="tab-hashtags">
+        <div class="panel-header">
+          <h2><i class="fas fa-hashtag"></i> Hashtag Set Generator</h2>
+          <p>Optimized hashtag sets to maximise reach and discovery.</p>
+        </div>
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Post Topic</label>
+              <select id="hash-topic">
+                <option value="bracelet">Beaded Bracelets (general)</option>
+                <option value="custom">Custom / Personalized</option>
+                <option value="gift">Gift Ideas</option>
+                <option value="handmade">Handmade / Craft</option>
+                <option value="fashion">Fashion & Style</option>
+                <option value="sale">Sale / Promo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Your Location / Country</label>
+              <input type="text" id="hash-location" placeholder="e.g. Malaysia, USA, Philippines" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Your Shop Name / Handle</label>
+            <input type="text" id="hash-shop" placeholder="e.g. bellabeads" />
+          </div>
+          <button class="generate-btn" onclick="generateHashtags()">
+            <i class="fas fa-tags"></i> Generate Hashtag Set
+          </button>
+        </div>
+        <div class="output-area" id="hash-output"></div>
+      </div>
+
+      <!-- ======= CALENDAR TAB ======= -->
+      <div class="tab-panel" id="tab-calendar">
+        <div class="panel-header">
+          <h2><i class="fas fa-calendar-alt"></i> Weekly Content Calendar</h2>
+          <p>A full 7-day posting plan — what to post, when, and how.</p>
+        </div>
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Posting Frequency</label>
+              <select id="cal-freq">
+                <option value="daily">Daily (7 posts/week)</option>
+                <option value="5">5 days a week</option>
+                <option value="3">3 times a week</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Main Goal This Week</label>
+              <select id="cal-goal">
+                <option value="awareness">Brand Awareness (get followers)</option>
+                <option value="sales">Drive Sales & Orders</option>
+                <option value="engagement">Boost Engagement (likes, shares)</option>
+                <option value="launch">New Product Launch</option>
+              </select>
+            </div>
+          </div>
+          <button class="generate-btn" onclick="generateCalendar()">
+            <i class="fas fa-calendar-check"></i> Generate 7-Day Plan
+          </button>
+        </div>
+        <div class="output-area" id="cal-output"></div>
+      </div>
+
+      <!-- ======= STORIES TAB ======= -->
+      <div class="tab-panel" id="tab-stories">
+        <div class="panel-header">
+          <h2><i class="fas fa-circle-notch"></i> Instagram Story Ideas</h2>
+          <p>Interactive story ideas that get views, votes, and DMs.</p>
+        </div>
+        <div class="form-card">
+          <div class="form-group">
+            <label>Story Goal</label>
+            <select id="story-goal">
+              <option value="engagement">Get Engagement (polls, questions)</option>
+              <option value="sales">Drive Sales</option>
+              <option value="trust">Build Trust / Behind the Scenes</option>
+              <option value="fun">Fun & Viral</option>
+            </select>
+          </div>
+          <button class="generate-btn" onclick="generateStoryIdeas()">
+            <i class="fas fa-lightbulb"></i> Generate 5 Story Ideas
+          </button>
+        </div>
+        <div class="output-area" id="story-output"></div>
+      </div>
+
+      <!-- ======= BIO TAB ======= -->
+      <div class="tab-panel" id="tab-bio">
+        <div class="panel-header">
+          <h2><i class="fas fa-user-edit"></i> Instagram Bio Optimizer</h2>
+          <p>A great bio converts visitors to followers and customers.</p>
+        </div>
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Shop Name</label>
+              <input type="text" id="bio-name" placeholder="e.g. Bella Beads" />
+            </div>
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" id="bio-location" placeholder="e.g. KL, Malaysia" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>What makes your bracelets special?</label>
+            <input type="text" id="bio-special" placeholder="e.g. 100% handmade, custom name beads, fast shipping" />
+          </div>
+          <div class="form-group">
+            <label>Call to Action</label>
+            <select id="bio-cta">
+              <option value="order">Order via WhatsApp link</option>
+              <option value="shop">Shop on website</option>
+              <option value="dm">DM to order</option>
+              <option value="link">Click link below</option>
+            </select>
+          </div>
+          <button class="generate-btn" onclick="generateBio()">
+            <i class="fas fa-pen-fancy"></i> Generate 3 Bio Options
+          </button>
+        </div>
+        <div class="output-area" id="bio-output"></div>
+      </div>
+
+    </div><!-- end content-area -->
+  </div><!-- end dashboard -->
+
+  <!-- SAVED CONTENT -->
+  <section class="saved-section" id="saved-section" style="display:none;">
+    <div class="section-header">
+      <h2>📋 Saved Content</h2>
+      <button onclick="clearSaved()" class="clear-btn">Clear All</button>
+    </div>
+    <div class="saved-grid" id="saved-grid"></div>
+  </section>
+
+  <footer class="footer-simple">
+    <a href="index.html">🌸 VeronikaK</a> &nbsp;·&nbsp; AI Content Manager &nbsp;·&nbsp; © 2026
+  </footer>
+
+  <script src="products.js"></script>
+  <script src="content-ai.js"></script>
+</body>
+</html>
