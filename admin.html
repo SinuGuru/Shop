@@ -174,6 +174,7 @@
         <button class="ai-tab" onclick="switchAiTab('stories',this)">📖 Stories</button>
         <button class="ai-tab" onclick="switchAiTab('bio',this)">✍️ Bio</button>
         <button class="ai-tab" onclick="switchAiTab('targeting',this)">🎯 Targeting</button>
+        <button class="ai-tab" onclick="switchAiTab('autopost',this)">📱 Auto-Post</button>
       </div>
       <!-- CAPTIONS -->
       <div id="ai-captions" class="ai-panel active">
@@ -283,6 +284,48 @@
           </button>
         </div>
         <div id="icp-output" class="ai-output"></div>
+      </div>
+
+      <!-- AUTO-POST -->
+      <div id="ai-autopost" class="ai-panel">
+        <div class="ai-form">
+          <h3 style="margin-bottom:4px;font-size:.95rem">📱 Auto-Post to Instagram</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">
+            Generate a caption with AI, then post directly to your Instagram. Requires Instagram Professional account + Vercel deployment.
+          </p>
+          <label>Product / topic</label>
+          <input type="text" id="autopost-topic" placeholder="e.g. Pink beaded bracelet, Valentine's gift"/>
+          <label>Tone</label>
+          <select id="autopost-tone">
+            <option>Fun &amp; playful</option><option>Elegant &amp; classy</option>
+            <option>Heartfelt &amp; personal</option><option>Bold &amp; trendy</option>
+          </select>
+          <label>Product image URL <small>(must be a public https:// link)</small></label>
+          <input type="text" id="autopost-image" placeholder="https://sinuguru.github.io/Shop/images/product-01.jpeg"/>
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+            <button class="btn-generate" onclick="generateAndPreviewPost()">
+              <i class="fas fa-sparkles"></i> Generate Caption
+            </button>
+          </div>
+        </div>
+        <div id="autopost-preview" style="display:none" class="dash-card" style="margin-top:16px">
+          <h4 style="margin-bottom:10px">👀 Preview</h4>
+          <img id="autopost-img-preview" src="" alt="" style="width:100%;max-width:320px;border-radius:12px;margin-bottom:12px"/>
+          <textarea id="autopost-caption" rows="6" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border);font-family:'Poppins',sans-serif;font-size:.85rem;resize:vertical"></textarea>
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn-primary" onclick="postToInstagram(this)">
+              <i class="fab fa-instagram"></i> Post to Instagram
+            </button>
+            <button class="btn-outline" onclick="navigator.clipboard.writeText(document.getElementById('autopost-caption').value).then(()=>showToast('Caption copied!'))">  
+              <i class="fas fa-copy"></i> Copy Caption
+            </button>
+          </div>
+          <div id="autopost-status" style="margin-top:10px;font-size:.84rem"></div>
+        </div>
+        <div class="sync-note" style="margin-top:20px">
+          <i class="fas fa-info-circle"></i>
+          <span>Instagram auto-posting requires: <strong>1)</strong> Instagram Professional account <strong>2)</strong> Facebook Developer App <strong>3)</strong> Deployed on Vercel with <code>INSTAGRAM_USER_ID</code> + <code>INSTAGRAM_TOKEN</code> environment variables. <a href="https://developers.facebook.com/docs/instagram-api" target="_blank">Setup guide →</a></span>
+        </div>
       </div>
     </div>
 

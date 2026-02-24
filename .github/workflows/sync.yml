@@ -1,0 +1,63 @@
+# ============================================================
+#  VeronikaK — Automatic Nightly Product Sync
+#  Runs every night at 01:00 UTC (02:00 UK time)
+#  Also runs when you push to main, or manually via Actions tab
+# ============================================================
+
+name: Nightly Product Sync
+
+on:
+  schedule:
+    - cron: "0 1 * * *"   # 01:00 UTC every day
+  workflow_dispatch:        # Allow manual trigger from GitHub Actions tab
+  push:
+    branches: [main]
+    paths:
+      - "sync-products.js"  # Re-run if sync script changes
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # Needed to push updated products.js
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run product sync
+        env:
+          SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
+        run: node sync-products.js --square=$SQUARE_TOKEN --key=$OPENAI_API_KEY
+
+      - name: Fix product URLs from sitemap
+        run: node fix-urls.js
+
+      - name: Download product images
+        run: node download-images.js
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "VeronikaK Bot"
+          git config user.email "bot@veronikak.shop"
+          git add products.js images/
+          if git diff --staged --quiet; then
+            echo "✅ No changes — products already up to date."
+          else
+            COUNT=$(git diff --staged --stat | tail -1)
+            git commit -m "🤖 Auto-sync: update products + images ($COUNT)"
+            git push
+            echo "✅ Products synced and deployed."
+          fi

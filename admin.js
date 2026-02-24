@@ -509,6 +509,113 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// ── Auto-Post to Instagram ──────────────────────────────────────────
+async function generateAndPreviewPost() {
+  const topic = document.getElementById("autopost-topic").value || "handmade bracelet";
+  const tone  = document.getElementById("autopost-tone").value;
+  const img   = document.getElementById("autopost-image").value.trim();
+  const prev  = document.getElementById("autopost-preview");
+  document.getElementById("autopost-status").textContent = "";
+
+  const caption = await callGPT(
+    `Write one Instagram caption for a post about: "${topic}". Tone: ${tone}. Include a hook, 2-3 sentences, CTA to visit sinuguru.square.site, and 5-8 hashtags.`
+  );
+  document.getElementById("autopost-caption").value = caption;
+  if (img) {
+    document.getElementById("autopost-img-preview").src = img;
+    document.getElementById("autopost-img-preview").style.display = "block";
+  } else {
+    document.getElementById("autopost-img-preview").style.display = "none";
+  }
+  prev.style.display = "block";
+}
+
+async function postToInstagram(btn) {
+  const caption  = document.getElementById("autopost-caption").value.trim();
+  const imageUrl = document.getElementById("autopost-image").value.trim();
+  const status   = document.getElementById("autopost-status");
+
+  if (!caption)  { status.textContent = "❌ Write or generate a caption first."; status.style.color = "var(--danger)"; return; }
+  if (!imageUrl) { status.textContent = "❌ Add a public image URL first.";       status.style.color = "var(--danger)"; return; }
+  if (!USE_VERCEL_PROXY) {
+    status.textContent = "⚠️ Auto-posting only works when deployed on Vercel. Copy the caption and post manually for now.";
+    status.style.color = "var(--gray)";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+  status.textContent = "";
+
+  try {
+    const res  = await fetch("/api/instagram", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl, caption })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    status.innerHTML = `<span style="color:var(--success)">✅ Posted to Instagram! Post ID: ${data.post_id}</span>`;
+    showToast("✅ Posted to Instagram!");
+  } catch(e) {
+    status.innerHTML = `<span style="color:var(--danger)">❌ ${e.message}</span>`;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fab fa-instagram"></i> Post to Instagram';
+}
+
+// ── Auto-Post to Instagram ────────────────────────────────────────
+async function generateAndPreviewPost() {
+  const topic = document.getElementById("autopost-topic").value || "handmade bracelet";
+  const tone  = document.getElementById("autopost-tone").value;
+  const img   = document.getElementById("autopost-image").value.trim();
+  const prev  = document.getElementById("autopost-preview");
+  document.getElementById("autopost-status").textContent = "";
+
+  const caption = await callGPT(
+    `Write one Instagram caption for a post about: "${topic}". Tone: ${tone}. Include a hook, 2-3 sentences, CTA to visit sinuguru.square.site, and 5-8 hashtags.`
+  );
+  document.getElementById("autopost-caption").value = caption;
+  if (img) {
+    document.getElementById("autopost-img-preview").src = img;
+    document.getElementById("autopost-img-preview").style.display = "block";
+  } else {
+    document.getElementById("autopost-img-preview").style.display = "none";
+  }
+  prev.style.display = "block";
+}
+
+async function postToInstagram(btn) {
+  const caption  = document.getElementById("autopost-caption").value.trim();
+  const imageUrl = document.getElementById("autopost-image").value.trim();
+  const status   = document.getElementById("autopost-status");
+
+  if (!caption)  { status.textContent = "❌ Write or generate a caption first."; status.style.color = "var(--danger)"; return; }
+  if (!imageUrl) { status.textContent = "❌ Add a public image URL first.";       status.style.color = "var(--danger)"; return; }
+  if (!USE_VERCEL_PROXY) {
+    status.textContent = "⚠️ Auto-posting only works when deployed on Vercel. Copy the caption and post manually for now.";
+    status.style.color = "var(--gray)";
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+  try {
+    const res  = await fetch("/api/instagram", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl, caption })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    status.innerHTML = `<span style="color:var(--success)">✅ Posted! Post ID: ${data.post_id}</span>`;
+    showToast("✅ Posted to Instagram!");
+  } catch(e) {
+    status.innerHTML = `<span style="color:var(--danger)">❌ ${e.message}</span>`;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fab fa-instagram"></i> Post to Instagram';
+}
+
 // ── Fix Product URLs via Sitemap ─────────────────────────────────
 async function fixProductUrls(btn) {
   const output = document.getElementById("fix-urls-output");
