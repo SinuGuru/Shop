@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — VeronikaK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="admin.css"/>
+  <script>
+    // Lock body immediately before paint
+    document.documentElement.style.overflow = "hidden";
+    if (sessionStorage.getItem("vk_admin_auth") !== "1") {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("admin-app").style.display = "none";
+      });
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("pw-gate").style.display = "none";
+        document.documentElement.style.overflow = "";
+      });
+    }
+    function checkPassword() {
+      const val = document.getElementById("pw-input").value;
+      if (val === "veronika") {
+        sessionStorage.setItem("vk_admin_auth", "1");
+        document.getElementById("pw-gate").style.display = "none";
+        document.getElementById("admin-app").style.display = "flex";
+        document.documentElement.style.overflow = "";
+        initAdmin();
+      } else {
+        document.getElementById("pw-error").style.display = "block";
+        document.getElementById("pw-input").value = "";
+        document.getElementById("pw-input").focus();
+      }
+    }
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter" && document.getElementById("pw-gate")?.style.display !== "none") checkPassword();
+    });
+  </script>
+</head>
+<body>
+
+<!-- ══ PASSWORD GATE ══════════════════════════════════════ -->
+<div id="pw-gate" class="pw-gate">
+  <div class="pw-box">
+    <div class="pw-logo">🌸</div>
+    <h2>VeronikaK Admin</h2>
+    <p>Private area. Enter password to continue.</p>
+    <input id="pw-input" type="password" placeholder="••••••••" autofocus/>
+    <button onclick="checkPassword()">Enter <i class="fas fa-arrow-right"></i></button>
+    <div class="pw-error" id="pw-error">Wrong password. Try again.</div>
+  </div>
+</div>
+
+<!-- ══ ADMIN APP ══════════════════════════════════════════ -->
+<div id="admin-app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>🌸</span>
+      <div>
+        <strong>VeronikaK</strong>
+        <small>Admin Panel</small>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" onclick="switchPage('dashboard',this)">
+        <i class="fas fa-gauge-high"></i> Dashboard
+      </a>
+      <a href="#" class="nav-item" onclick="switchPage('products',this)">
+        <i class="fas fa-boxes-stacked"></i> Products
+      </a>
+      <a href="#" class="nav-item" onclick="switchPage('ai',this)">
+        <i class="fas fa-robot"></i> AI Content
+      </a>
+      <a href="#" class="nav-item" onclick="switchPage('sync',this)">
+        <i class="fas fa-rotate"></i> Sync Tools
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="index.html" class="nav-item" target="_blank">
+        <i class="fas fa-store"></i> View Shop
+      </a>
+      <a href="https://sinuguru.square.site" class="nav-item" target="_blank">
+        <i class="fas fa-external-link-alt"></i> Square Shop
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-main">
+
+    <!-- ── DASHBOARD PAGE ────────────────────────────── -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <span class="badge-live">● Live</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><i class="fas fa-gem"></i><div><span id="stat-products">0</span><small>Products</small></div></div>
+        <div class="stat-card"><i class="fas fa-tag"></i><div><span id="stat-cats">4</span><small>Categories</small></div></div>
+        <div class="stat-card"><i class="fas fa-sterling-sign"></i><div><span>6.00</span><small>Price (£)</small></div></div>
+        <div class="stat-card"><i class="fas fa-image"></i><div><span id="stat-images">0</span><small>With Images</small></div></div>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h3><i class="fas fa-boxes-stacked"></i> Categories</h3>
+          <div id="cat-breakdown"></div>
+        </div>
+        <div class="dash-card">
+          <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+          <div class="quick-actions">
+            <button onclick="switchPage('products', document.querySelector('[onclick*=products]'))"><i class="fas fa-edit"></i> Edit Products</button>
+            <button onclick="switchPage('ai', document.querySelector('[onclick*=ai]'))"><i class="fas fa-robot"></i> Generate Content</button>
+            <button onclick="switchPage('sync', document.querySelector('[onclick*=sync]'))"><i class="fas fa-rotate"></i> Sync Commands</button>
+            <a href="https://sinuguru.square.site" target="_blank" class="btn-outline"><i class="fas fa-external-link-alt"></i> Open Square Shop</a>
+          </div>
+        </div>
+        <div class="dash-card">
+          <h3><i class="fas fa-circle-info"></i> Your Links</h3>
+          <div class="link-list">
+            <div><small>Website</small><a href="https://sinuguru.github.io/Shop" target="_blank">sinuguru.github.io/Shop</a></div>
+            <div><small>Square Shop</small><a href="https://sinuguru.square.site" target="_blank">sinuguru.square.site</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRODUCTS PAGE ─────────────────────────────── -->
+    <div id="page-products" class="page">
+      <div class="page-header">
+        <h1>Products <span id="prod-count-badge" class="count-badge">0</span></h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openAddProduct()"><i class="fas fa-plus"></i> Add Product</button>
+          <button class="btn-outline" onclick="downloadProductsJs()"><i class="fas fa-download"></i> Export products.js</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="prod-search" placeholder="🔍  Search products..." oninput="filterProducts()"/>
+        <select id="cat-filter" onchange="filterProducts()">
+          <option value="">All Categories</option>
+          <option>Bracelets</option>
+          <option>Braided</option>
+          <option>Kids</option>
+          <option>Earrings</option>
+        </select>
+      </div>
+      <div id="product-list"></div>
+    </div>
+
+    <!-- ── AI CONTENT PAGE ───────────────────────────── -->
+    <div id="page-ai" class="page">
+      <div class="page-header">
+        <h1>AI Content Manager</h1>
+      </div>
+      <!-- API KEY -->
+      <div class="api-card">
+        <i class="fas fa-key"></i>
+        <input type="password" id="api-key-input" placeholder="Paste OpenAI API key (sk-...)"/>
+        <button onclick="saveApiKey()">Save Key</button>
+        <span id="api-status"></span>
+      </div>
+      <!-- AI TABS -->
+      <div class="ai-tabs">
+        <button class="ai-tab active" onclick="switchAiTab('captions',this)">📸 Captions</button>
+        <button class="ai-tab" onclick="switchAiTab('reels',this)">🎬 Reels</button>
+        <button class="ai-tab" onclick="switchAiTab('hashtags',this)">🏷️ Hashtags</button>
+        <button class="ai-tab" onclick="switchAiTab('calendar',this)">📅 Calendar</button>
+        <button class="ai-tab" onclick="switchAiTab('stories',this)">📖 Stories</button>
+        <button class="ai-tab" onclick="switchAiTab('bio',this)">✍️ Bio</button>
+      </div>
+      <!-- CAPTIONS -->
+      <div id="ai-captions" class="ai-panel active">
+        <div class="ai-form">
+          <label>Product / occasion</label>
+          <input type="text" id="caption-product" placeholder="e.g. Braided bracelet, Valentine's Day gift"/>
+          <label>Tone</label>
+          <select id="caption-tone">
+            <option>Fun & playful</option><option>Elegant & classy</option>
+            <option>Heartfelt & personal</option><option>Bold & trendy</option>
+          </select>
+          <button class="btn-generate" onclick="generateCaptions()"><i class="fas fa-sparkles"></i> Generate 3 Captions</button>
+        </div>
+        <div id="caption-output" class="ai-output"></div>
+      </div>
+      <!-- REELS -->
+      <div id="ai-reels" class="ai-panel">
+        <div class="ai-form">
+          <label>Reel topic</label>
+          <input type="text" id="reel-topic" placeholder="e.g. behind the scenes making a bracelet"/>
+          <label>Duration</label>
+          <select id="reel-duration"><option>15 seconds</option><option>30 seconds</option><option>60 seconds</option></select>
+          <button class="btn-generate" onclick="generateReelScript()"><i class="fas fa-sparkles"></i> Write Reel Script</button>
+        </div>
+        <div id="reel-output" class="ai-output"></div>
+      </div>
+      <!-- HASHTAGS -->
+      <div id="ai-hashtags" class="ai-panel">
+        <div class="ai-form">
+          <label>Post topic</label>
+          <input type="text" id="hashtag-topic" placeholder="e.g. beaded bracelet, handmade jewellery UK"/>
+          <label>Set size</label>
+          <select id="hashtag-size"><option>15 hashtags</option><option>20 hashtags</option><option>30 hashtags</option></select>
+          <button class="btn-generate" onclick="generateHashtags()"><i class="fas fa-sparkles"></i> Generate Hashtags</button>
+        </div>
+        <div id="hashtag-output" class="ai-output"></div>
+      </div>
+      <!-- CALENDAR -->
+      <div id="ai-calendar" class="ai-panel">
+        <div class="ai-form">
+          <label>Week focus</label>
+          <input type="text" id="cal-focus" placeholder="e.g. Valentine's Week, Spring launch"/>
+          <button class="btn-generate" onclick="generateCalendar()"><i class="fas fa-sparkles"></i> Build 7-Day Plan</button>
+        </div>
+        <div id="calendar-output" class="ai-output"></div>
+      </div>
+      <!-- STORIES -->
+      <div id="ai-stories" class="ai-panel">
+        <div class="ai-form">
+          <label>Story goal</label>
+          <input type="text" id="story-goal" placeholder="e.g. drive sales, show new stock, engage followers"/>
+          <button class="btn-generate" onclick="generateStoryIdeas()"><i class="fas fa-sparkles"></i> Get 5 Story Ideas</button>
+        </div>
+        <div id="story-output" class="ai-output"></div>
+      </div>
+      <!-- BIO -->
+      <div id="ai-bio" class="ai-panel">
+        <div class="ai-form">
+          <label>Platform</label>
+          <select id="bio-platform"><option>Instagram</option><option>TikTok</option><option>Facebook</option></select>
+          <label>Focus keyword</label>
+          <input type="text" id="bio-kw" placeholder="e.g. handmade jewellery, beaded bracelets UK"/>
+          <button class="btn-generate" onclick="generateBio()"><i class="fas fa-sparkles"></i> Write Bio</button>
+        </div>
+        <div id="bio-output" class="ai-output"></div>
+      </div>
+    </div>
+
+    <!-- ── SYNC TOOLS PAGE ───────────────────────────── -->
+    <div id="page-sync" class="page">
+      <div class="page-header"><h1>Sync Tools</h1></div>
+      <div class="sync-intro">
+        <p>Run these commands in your terminal (<strong>VS Code → Terminal</strong>) to sync new products, generate AI descriptions, and update everything automatically.</p>
+      </div>
+      <div class="sync-steps">
+        <div class="sync-step">
+          <div class="step-num">1</div>
+          <div>
+            <h3>Full Sync — Square API + AI Vision</h3>
+            <p>Fetches all products from Square, generates AI descriptions from product images, updates your Square shop AND products.js</p>
+            <div class="code-block">
+              <code id="cmd-sync">node sync-products.js --square=YOUR_TOKEN --key=YOUR_OPENAI_KEY</code>
+              <button onclick="copyCode('cmd-sync')"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="sync-step">
+          <div class="step-num">2</div>
+          <div>
+            <h3>Download Images</h3>
+            <p>Downloads all product photos from Square to your local <code>images/</code> folder so they load fast on your website.</p>
+            <div class="code-block">
+              <code id="cmd-images">node download-images.js</code>
+              <button onclick="copyCode('cmd-images')"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="sync-step">
+          <div class="step-num">3</div>
+          <div>
+            <h3>Push to Website (GitHub Pages)</h3>
+            <p>Commits everything and pushes live to <a href="https://sinuguru.github.io/Shop" target="_blank">sinuguru.github.io/Shop</a></p>
+            <div class="code-block">
+              <code id="cmd-push">git add . && git commit -m "Update products" && git push</code>
+              <button onclick="copyCode('cmd-push')"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="sync-step">
+          <div class="step-num">★</div>
+          <div>
+            <h3>One-liner — Do Everything At Once</h3>
+            <div class="code-block">
+              <code id="cmd-all">node sync-products.js --square=YOUR_TOKEN --key=YOUR_OPENAI_KEY && node download-images.js && git add . && git commit -m "Update products" && git push</code>
+              <button onclick="copyCode('cmd-all')"><i class="fas fa-copy"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sync-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Only need to sync when you <strong>add new products on Square</strong> or want to <strong>refresh AI descriptions</strong>. Your website and Square shop update together automatically.</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ ADD / EDIT PRODUCT MODAL ══════════════════════════════ -->
+<div id="product-modal" class="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modal-title">Edit Product</h2>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id"/>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" id="edit-name" placeholder="e.g. Pink Beaded Bracelet"/>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="edit-cat">
+            <option>Bracelets</option><option>Braided</option><option>Kids</option><option>Earrings</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="edit-desc" rows="3" placeholder="Product description..."></textarea>
+        <button class="btn-ai-desc" onclick="aiDescFromName()"><i class="fas fa-robot"></i> Generate with AI</button>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price</label>
+          <input type="text" id="edit-price" value="£6.00"/>
+        </div>
+        <div class="form-group">
+          <label>Tag</label>
+          <select id="edit-tag">
+            <option>Best Seller ⭐</option><option>Popular 💕</option><option>Trending 🔥</option>
+            <option>New 🌸</option><option>Sale 🏷️</option><option>Handmade 💛</option>
+            <option>Gift Idea 🎁</option><option>Unique 💎</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Square Shop URL</label>
+        <input type="text" id="edit-url" placeholder="https://sinuguru.square.site/product/..."/>
+      </div>
+      <div class="form-group">
+        <label>Image URL <small>(leave blank to use local images/)</small></label>
+        <input type="text" id="edit-img" placeholder="images/product-01.jpeg"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-danger" id="delete-btn" onclick="deleteProduct()"><i class="fas fa-trash"></i> Delete</button>
+      <button class="btn-primary" onclick="saveProduct()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="products.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
