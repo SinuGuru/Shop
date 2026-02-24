@@ -156,7 +156,7 @@ function renderProducts() {
     <div class="product-card" onclick="goToProduct('${p.url}')">
       <div class="product-img" style="background:${p.bg};">
         ${p.imageUrl
-          ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">`
+          ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.remove()">`
           : p.emoji
         }
       </div>
