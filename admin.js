@@ -403,6 +403,92 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// ── Fix Product URLs via Sitemap ─────────────────────────────────
+async function fixProductUrls(btn) {
+  const output = document.getElementById("fix-urls-output");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching sitemap...';
+  output.innerHTML = '';
+
+  const SHOP = "https://sinuguru.square.site";
+  let xml = "";
+
+  // Try direct fetch first, fall back to CORS proxy
+  try {
+    const r = await fetch(`${SHOP}/sitemap.xml`);
+    if (!r.ok) throw new Error("non-200");
+    xml = await r.text();
+  } catch {
+    try {
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Using proxy...';
+      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(SHOP+"/sitemap.xml")}`;
+      const r = await fetch(proxy);
+      const j = await r.json();
+      xml = j.contents || "";
+    } catch(e) {
+      output.innerHTML = `<div class="sync-note" style="border-color:#fca5a5;background:#fef2f2"><i class="fas fa-xmark" style="color:var(--danger)"></i><span>Could not fetch sitemap: ${e.message}</span></div>`;
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-rotate"></i> Fetch &amp; Fix All URLs';
+      return;
+    }
+  }
+
+  // Parse all product URLs from sitemap
+  const sitemapUrls = [...xml.matchAll(/<loc>(https:\/\/[^<]*\/product\/[^<]+)<\/loc>/g)]
+    .map(m => m[1].trim());
+
+  if (!sitemapUrls.length) {
+    output.innerHTML = `<div class="sync-note" style="border-color:#fca5a5;background:#fef2f2"><i class="fas fa-xmark" style="color:var(--danger)"></i><span>No product URLs found in sitemap.</span></div>`;
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-rotate"></i> Fetch &amp; Fix All URLs';
+    return;
+  }
+
+  function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+  function matchUrl(name) {
+    const ns = slugify(name);
+    let m = sitemapUrls.find(u => u.includes(`/product/${ns}/`));
+    if (m) return m;
+    const words = ns.split("-").filter(w => w.length > 2);
+    let best = null, top = 0;
+    for (const u of sitemapUrls) {
+      const uslug = u.replace(/.*\/product\//,"").replace(/\/\d+$/,"");
+      const hits = words.filter(w => uslug.includes(w)).length;
+      if (hits > top) { top = hits; best = u; }
+    }
+    return top >= 2 ? best : SHOP;
+  }
+
+  let matched = 0, fallback = 0;
+  const rows = [];
+
+  adminProducts = adminProducts.map(p => {
+    const url = matchUrl(p.name);
+    const isReal = url !== SHOP;
+    if (isReal) matched++; else fallback++;
+    rows.push(`<div style="display:flex;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:.78rem">
+      <span style="color:${isReal?'var(--success)':'var(--gray)'}">${isReal?'✅':'⚠️'}</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</span>
+      <span style="color:var(--gray);flex-shrink:0">${url.replace(SHOP,"") || "(homepage)"}</span>
+    </div>`);
+    return { ...p, url };
+  });
+
+  persistLocal();
+  renderProductList();
+
+  output.innerHTML = `
+    <div class="sync-note" style="margin-bottom:12px">
+      <i class="fas fa-check-circle" style="color:var(--success)"></i>
+      <span><strong>${matched} URLs matched</strong> from ${sitemapUrls.length} in sitemap${fallback ? `, ${fallback} fell back to homepage` : ""}. <strong>Click Export products.js</strong> on the Products page then git push.</span>
+    </div>
+    <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:var(--bg)">${rows.join("")}</div>`;
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-rotate"></i> Fetch &amp; Fix All URLs';
+  showToast(`✅ ${matched}/${adminProducts.length} product URLs updated!`);
+}
+
 // ── Skin / Theme ──────────────────────────────────────────────────
 function applySkin(skin) {
   // Apply to <html> so it overrides :root CSS variables

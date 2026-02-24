@@ -293,6 +293,18 @@
         <i class="fas fa-info-circle"></i>
         <span>Only need to sync when you <strong>add new products on Square</strong> or want to <strong>refresh AI descriptions</strong>. Your website and Square shop update together automatically.</span>
       </div>
+
+      <!-- FIX URLS TOOL -->
+      <div style="margin-top:24px">
+        <div class="dash-card">
+          <h3><i class="fas fa-link"></i> Fix Product URLs</h3>
+          <p style="font-size:.86rem;color:var(--gray);margin:8px 0 16px;line-height:1.6">Fetches your Square sitemap and automatically matches every product to its real individual product page URL. Run this whenever you add new products.</p>
+          <button class="btn-primary" onclick="fixProductUrls(this)" id="fix-urls-btn">
+            <i class="fas fa-rotate"></i> Fetch &amp; Fix All URLs
+          </button>
+          <div id="fix-urls-output" style="margin-top:16px"></div>
+        </div>
+      </div>
     </div>
 
   </main>
