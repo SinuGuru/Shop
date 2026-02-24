@@ -405,8 +405,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ── Skin / Theme ──────────────────────────────────────────────────
 function applySkin(skin) {
-  document.body.classList.remove("theme-light", "theme-rose", "theme-ocean");
-  if (skin !== "dark") document.body.classList.add("theme-" + skin);
+  // Apply to <html> so it overrides :root CSS variables
+  const html = document.documentElement;
+  html.classList.remove("theme-light", "theme-rose", "theme-ocean");
+  if (skin !== "dark") html.classList.add("theme-" + skin);
   localStorage.setItem("vk_admin_skin", skin);
   document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
   const sw = document.getElementById("sw-" + skin);
@@ -414,8 +416,8 @@ function applySkin(skin) {
 }
 
 function applyLayout(layout) {
-  document.body.classList.remove("layout-topnav");
-  if (layout === "topnav") document.body.classList.add("layout-topnav");
+  document.documentElement.classList.remove("layout-topnav");
+  if (layout === "topnav") document.documentElement.classList.add("layout-topnav");
   localStorage.setItem("vk_admin_layout", layout);
   const sb = document.getElementById("lb-sidebar");
   const tn = document.getElementById("lb-topnav");

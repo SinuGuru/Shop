@@ -360,7 +360,8 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
 /* ═══════════════════════════════════════════════════════
    THEMES
 ═══════════════════════════════════════════════════════ */
-.theme-light {
+.theme-light,
+html.theme-light {
   --sidebar-bg:         #ffffff;
   --sidebar-text:       #1a1a2e;
   --sidebar-text-muted: #999;
@@ -369,7 +370,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
   --bg:                 #eef1f8;
 }
 
-.theme-rose {
+html.theme-rose {
   --sidebar-bg:         #6b1246;
   --sidebar-text:       #fff;
   --sidebar-text-muted: rgba(255,255,255,.6);
@@ -379,7 +380,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
   --card:               #fff8fc;
 }
 
-.theme-ocean {
+html.theme-ocean {
   --sidebar-bg:         #0a3055;
   --sidebar-text:       #fff;
   --sidebar-text-muted: rgba(255,255,255,.6);
