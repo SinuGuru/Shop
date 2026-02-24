@@ -5,7 +5,8 @@
 // ── State ────────────────────────────────────────────────────
 let adminProducts = [];
 let editingIndex = -1;  // -1 = new product
-let savedApiKey  = localStorage.getItem("vk_openai_key") || "";
+let savedApiKey    = localStorage.getItem("vk_openai_key")  || "";
+let savedSquareKey = localStorage.getItem("vk_square_key") || "";
 
 // ── Init ─────────────────────────────────────────────────────
 function initAdmin() {
@@ -24,6 +25,7 @@ function initAdmin() {
     showApiStatus("✅ API key loaded.", "var(--success)");
   }
   sessionStorage.getItem("vk_admin_auth") === "1" && updateStats();
+  loadSettingsPage();
   // Load saved appearance
   applySkin(localStorage.getItem("vk_admin_skin")   || "dark");
   applyLayout(localStorage.getItem("vk_admin_layout") || "sidebar");
@@ -258,6 +260,7 @@ function saveApiKey() {
   savedApiKey = val;
   localStorage.setItem("vk_openai_key", val);
   showApiStatus("✅ Key saved! AI mode active.", "var(--success)");
+  loadSettingsPage();
 }
 
 function showApiStatus(msg, color) {
@@ -367,6 +370,59 @@ async function generateStoryIdeas() {
   showLoading("story-output");
   const result = await callGPT(`Give 5 Instagram Story ideas for VeronikaK jewellery shop with goal: "${goal}". Each idea should be concrete and actionable. Number them 1-5.`);
   document.getElementById("story-output").innerHTML = outputCard(result);
+}
+
+// ── Settings page ─────────────────────────────────────────────────
+function loadSettingsPage() {
+  const oEl = document.getElementById("settings-openai");
+  const sEl = document.getElementById("settings-square");
+  const oSt = document.getElementById("openai-key-status");
+  const sSt = document.getElementById("square-key-status");
+  const cmd = document.getElementById("cmd-with-tokens");
+  if (oEl && savedApiKey)    { oEl.value = savedApiKey;    oSt.textContent = "✅ OpenAI key saved";  oSt.style.color = "var(--success)"; }
+  if (sEl && savedSquareKey) { sEl.value = savedSquareKey; sSt.textContent = "✅ Square token saved"; sSt.style.color = "var(--success)"; }
+  if (cmd) {
+    if (savedSquareKey && savedApiKey) {
+      cmd.textContent = `node sync-products.js --square=${savedSquareKey} --key=${savedApiKey}`;
+    } else if (savedSquareKey) {
+      cmd.textContent = `node sync-products.js --square=${savedSquareKey}`;
+    } else {
+      cmd.textContent = "Save your keys above to generate this command.";
+    }
+  }
+}
+
+function saveSettingsKeys() {
+  const oVal = document.getElementById("settings-openai").value.trim();
+  const sVal = document.getElementById("settings-square").value.trim();
+  const oSt  = document.getElementById("openai-key-status");
+  const sSt  = document.getElementById("square-key-status");
+  let saved  = 0;
+
+  if (oVal) {
+    if (!oVal.startsWith("sk-")) {
+      oSt.textContent = "❌ Invalid — should start with sk-"; oSt.style.color = "var(--danger)";
+    } else {
+      savedApiKey = oVal;
+      localStorage.setItem("vk_openai_key", oVal);
+      oSt.textContent = "✅ Saved!"; oSt.style.color = "var(--success)";
+      const inp = document.getElementById("api-key-input");
+      if (inp) inp.value = oVal;
+      showApiStatus("✅ API key loaded.", "var(--success)");
+      saved++;
+    }
+  }
+  if (sVal) {
+    if (!sVal.startsWith("EAAA")) {
+      sSt.textContent = "❌ Invalid — Square tokens start with EAAA"; sSt.style.color = "var(--danger)";
+    } else {
+      savedSquareKey = sVal;
+      localStorage.setItem("vk_square_key", sVal);
+      sSt.textContent = "✅ Saved!"; sSt.style.color = "var(--success)";
+      saved++;
+    }
+  }
+  if (saved) { loadSettingsPage(); showToast(`✅ ${saved} key${saved>1?"s":""} saved!`); }
 }
 
 // ── Audience Strategy ────────────────────────────────────────────

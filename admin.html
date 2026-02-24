@@ -78,6 +78,9 @@
       <a href="#" class="nav-item" onclick="switchPage('sync',this)">
         <i class="fas fa-rotate"></i> Sync Tools
       </a>
+      <a href="#" class="nav-item" onclick="switchPage('settings',this)">
+        <i class="fas fa-key"></i> API Keys
+      </a>
     </nav>
     <div class="sidebar-bottom">
       <a href="index.html" class="nav-item" target="_blank">
@@ -349,6 +352,54 @@
           </button>
           <div id="fix-urls-output" style="margin-top:16px"></div>
         </div>
+      </div>
+    </div>
+
+  <!-- ── SETTINGS PAGE ────────────────────────────────────────────────── -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <h1><i class="fas fa-key" style="color:var(--pink)"></i> API Keys</h1>
+      </div>
+      <div style="max-width:580px;display:flex;flex-direction:column;gap:20px">
+
+        <!-- OpenAI -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fab fa-openai" style="color:var(--pink)"></i> OpenAI API Key</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Used for AI caption, reel, hashtag, targeting generators, and product description writing. Get yours at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>.</p>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="password" id="settings-openai" placeholder="sk-proj-..." style="flex:1;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" onclick="saveSettingsKeys()"><i class="fas fa-save"></i> Save</button>
+          </div>
+          <div id="openai-key-status" style="font-size:.8rem;margin-top:8px"></div>
+        </div>
+
+        <!-- Square -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-square" style="color:var(--pink)"></i> Square API Token</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Used by the sync script to pull products from your Square shop. Get yours at <a href="https://developer.squareup.com/apps" target="_blank">developer.squareup.com</a> &rarr; your app &rarr; Production Access Token.</p>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="password" id="settings-square" placeholder="EAAAly..." style="flex:1;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" onclick="saveSettingsKeys()"><i class="fas fa-save"></i> Save</button>
+          </div>
+          <div id="square-key-status" style="font-size:.8rem;margin-top:8px"></div>
+        </div>
+
+        <!-- Usage hint -->
+        <div class="sync-note">
+          <i class="fas fa-info-circle"></i>
+          <span>Keys are stored in your browser only (<strong>localStorage</strong>) — never sent anywhere except directly to OpenAI/Square. Clear browser data to remove them.</span>
+        </div>
+
+        <!-- Sync command with token pre-filled -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:8px"><i class="fas fa-terminal" style="color:var(--pink)"></i> Ready-to-run Sync Command</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:12px">Your tokens pre-filled — just copy and run in terminal.</p>
+          <div class="code-block">
+            <code id="cmd-with-tokens">Save your keys above to generate this command.</code>
+            <button onclick="copyCode('cmd-with-tokens')"><i class="fas fa-copy"></i></button>
+          </div>
+        </div>
+
       </div>
     </div>
 
