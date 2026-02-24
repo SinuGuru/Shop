@@ -355,6 +355,23 @@
   </div>
 </div>
 
+<!-- SKIN PANEL -->
+<button class="skin-toggle-btn" onclick="toggleSkinPanel()" title="Appearance"><i class="fas fa-palette"></i></button>
+<div id="skin-panel">
+  <h4>Colour Theme</h4>
+  <div class="swatch-row">
+    <button class="swatch swatch-dark"  id="sw-dark"  title="Dark"  onclick="applySkin('dark')"></button>
+    <button class="swatch swatch-light" id="sw-light" title="Light" onclick="applySkin('light')"></button>
+    <button class="swatch swatch-rose"  id="sw-rose"  title="Rose"  onclick="applySkin('rose')"></button>
+    <button class="swatch swatch-ocean" id="sw-ocean" title="Ocean" onclick="applySkin('ocean')"></button>
+  </div>
+  <h4>Layout</h4>
+  <div class="layout-row">
+    <button class="layout-btn" id="lb-sidebar" onclick="applyLayout('sidebar')">⬛ Sidebar</button>
+    <button class="layout-btn" id="lb-topnav"  onclick="applyLayout('topnav')">▬ Top Nav</button>
+  </div>
+</div>
+
 <script src="products.js"></script>
 <script src="admin.js"></script>
 </body>

@@ -24,6 +24,9 @@ function initAdmin() {
     showApiStatus("✅ API key loaded.", "var(--success)");
   }
   sessionStorage.getItem("vk_admin_auth") === "1" && updateStats();
+  // Load saved appearance
+  applySkin(localStorage.getItem("vk_admin_skin")   || "dark");
+  applyLayout(localStorage.getItem("vk_admin_layout") || "sidebar");
 }
 
 // ── Page Navigation ────────────────────────────────────────────
@@ -397,5 +400,39 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("admin-app").style.display = "flex";
     document.getElementById("pw-gate").style.display   = "none";
     initAdmin();
+  }
+});
+
+// ── Skin / Theme ──────────────────────────────────────────────────
+function applySkin(skin) {
+  document.body.classList.remove("theme-light", "theme-rose", "theme-ocean");
+  if (skin !== "dark") document.body.classList.add("theme-" + skin);
+  localStorage.setItem("vk_admin_skin", skin);
+  document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
+  const sw = document.getElementById("sw-" + skin);
+  if (sw) sw.classList.add("active");
+}
+
+function applyLayout(layout) {
+  document.body.classList.remove("layout-topnav");
+  if (layout === "topnav") document.body.classList.add("layout-topnav");
+  localStorage.setItem("vk_admin_layout", layout);
+  const sb = document.getElementById("lb-sidebar");
+  const tn = document.getElementById("lb-topnav");
+  if (sb) sb.classList.toggle("active", layout === "sidebar");
+  if (tn) tn.classList.toggle("active",  layout === "topnav");
+}
+
+function toggleSkinPanel() {
+  document.getElementById("skin-panel").classList.toggle("open");
+}
+
+// Close panel when clicking outside
+document.addEventListener("click", e => {
+  const panel = document.getElementById("skin-panel");
+  if (panel && panel.classList.contains("open")
+      && !panel.contains(e.target)
+      && !e.target.closest(".skin-toggle-btn")) {
+    panel.classList.remove("open");
   }
 });
