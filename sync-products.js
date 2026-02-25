@@ -30,7 +30,7 @@ const DELAY_MS     = 1200;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function ok(msg)   { console.log(`  âœ… ${msg}`); }
-function warn(msg) { console.log(`  âš ï¸  ${msg}`); }
+function warn(msg) { console.log(`  âš ️  ${msg}`); }
 function info(msg) { console.log(`\nðŸ“Œ ${msg}`); }
 
 const squareHeaders = {
@@ -147,12 +147,12 @@ function detectCategory(name) {
 }
 function detectEmoji(cat, name) {
   if (cat === "Earrings") return ["ðŸ’Ž","ðŸŒ¸","âœ¨","ðŸ’œ","ðŸŒº","ðŸª©"][Math.floor(Math.random()*6)];
-  if (cat === "Kids")     return ["ðŸŒˆ","ðŸŽ ","ðŸŽ¡","ðŸŽ€","â­","ðŸ¦‹"][Math.floor(Math.random()*6)];
+  if (cat === "Kids")     return ["ðŸŒˆ","ðŸŽ ","ðŸŽ¡","ðŸŽ€","⭐","ðŸ¦‹"][Math.floor(Math.random()*6)];
   if (cat === "Braided")  return ["ðŸŒ¿","ðŸƒ","ðŸŒ¾","ðŸŽ‹","ðŸª¢","ðŸŒ»"][Math.floor(Math.random()*6)];
   const n = name.toLowerCase();
   if (n.includes("purple")) return "ðŸ’œ"; if (n.includes("blue")) return "ðŸ’™";
   if (n.includes("brown"))  return "ðŸ¤Ž"; if (n.includes("clear")) return "ðŸ”®";
-  if (n.includes("star"))   return "â­";
+  if (n.includes("star"))   return "⭐";
   return ["ðŸ’Ž","ðŸŒ¸","âœ¨","ðŸª©","ðŸŒŸ","ðŸ”®"][Math.floor(Math.random()*6)];
 }
 function detectBg(cat, name) {
@@ -164,7 +164,7 @@ function detectBg(cat, name) {
   if (n.includes("brown"))  return "#efebe9"; if (n.includes("clear")) return "#e8eaf6";
   return "#fff0f9";
 }
-const TAGS = ["Best Seller â­","Popular ðŸ’•","Trending ðŸ”¥","New ðŸŒ¸","Sale ðŸ·ï¸","Handmade ðŸ’›","Gift Idea ðŸŽ","Unique ðŸ’Ž"];
+const TAGS = ["Best Seller ⭐","Popular ðŸ’•","Trending ðŸ”¥","New ðŸŒ¸","Sale ðŸ·️","Handmade ðŸ’›","Gift Idea ðŸŽ","Unique ðŸ’Ž"];
 
 // â”€â”€ Write products.js â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function writeProductsFile(products) {
@@ -202,7 +202,7 @@ async function main() {
   console.log("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
 
   if (!SQUARE_TOKEN) {
-    console.error("\nâŒ No Square token. Run with: node sync-products.js --square=YOUR_TOKEN");
+    console.error("\n�Œ No Square token. Run with: node sync-products.js --square=YOUR_TOKEN");
     process.exit(1);
   }
   console.log(DRY_RUN
@@ -230,7 +230,7 @@ async function main() {
     // Get price from first variation
     const variation  = (itemData.variations || [])[0];
     const priceMoney = variation?.item_variation_data?.price_money;
-    const price      = priceMoney ? `Â£${(priceMoney.amount / 100).toFixed(2)}` : "Â£6.00";
+    const price      = priceMoney ? `£${(priceMoney.amount / 100).toFixed(2)}` : "£6.00";
 
     // Get image URL
     let imageUrl = "";
@@ -306,7 +306,7 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error("\nâŒ Fatal error:", err.message);
+  console.error("\n�Œ Fatal error:", err.message);
   if (err.response?.data) console.error(JSON.stringify(err.response.data, null, 2));
   process.exit(1);
 });

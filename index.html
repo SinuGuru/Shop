@@ -19,7 +19,12 @@
       <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-    <a href="#contact" class="nav-cta">Order Now</a>
+    <div class="nav-right">
+      <button class="cart-nav-btn" id="cart-nav-btn" onclick="openCart()" title="Shopping Basket">
+        🛒 <span class="cart-badge" id="cart-badge" style="display:none">0</span>
+      </button>
+      <a href="#contact" class="nav-cta">Order Now</a>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -239,6 +244,33 @@
         <h3>Order Enquiry Sent!</h3>
       <p>Thank you! We'll be in touch shortly. You can also order directly at <a href="https://sinuguru.square.site" target="_blank" style="color:var(--pink)">sinuguru.square.site</a></p>
       <button onclick="closePopup()" class="btn-primary">Great, Thanks!</button>
+    </div>
+  </div>
+
+  <!-- CART DRAWER -->
+  <div class="cart-overlay" id="cart-overlay" onclick="closeCartOverlay(event)"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3>🛒 Your Basket</h3>
+      <button class="cart-close-btn" onclick="closeCart()">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <div class="cart-empty" id="cart-empty">
+        <div style="font-size:3rem">🛒</div>
+        <p>Your basket is empty</p>
+        <button class="btn-primary" style="margin-top:16px" onclick="closeCart()">Browse Products</button>
+      </div>
+    </div>
+    <div class="cart-footer" id="cart-footer" style="display:none">
+      <div class="cart-total">
+        <span>Total</span>
+        <strong id="cart-total-price">£0.00</strong>
+      </div>
+      <button class="cart-checkout-btn" id="cart-checkout-btn" onclick="checkoutCart()">
+        <span id="cart-checkout-text">Pay Securely →</span>
+        <span id="cart-checkout-spinner" style="display:none">⏳ Creating checkout...</span>
+      </button>
+      <button class="cart-clear-btn" onclick="clearCart()">Clear basket</button>
     </div>
   </div>
 

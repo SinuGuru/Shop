@@ -166,9 +166,14 @@ function renderProducts() {
         <p>${p.description}</p>
         <div class="product-footer">
           <span class="product-price">${p.price}</span>
-          <button class="product-order-btn" onclick="event.stopPropagation(); openCheckout(${p.id})">
-            Buy Now
-          </button>
+          <div class="product-btns">
+            <button class="product-cart-btn" onclick="event.stopPropagation(); addToCart(${p.id})" title="Add to basket">
+              🛒
+            </button>
+            <button class="product-order-btn" onclick="event.stopPropagation(); openCheckout(${p.id})">
+              Buy Now
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -261,6 +266,169 @@ if (location.search.includes("order=success")) {
     history.replaceState({}, "", location.pathname);
   }
 }
+
+// -------------------------------------------------------
+//  SHOPPING CART
+// -------------------------------------------------------
+let cart = JSON.parse(localStorage.getItem("vk_cart") || "[]");
+
+function saveCart() {
+  localStorage.setItem("vk_cart", JSON.stringify(cart));
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badge = document.getElementById("cart-badge");
+  if (badge) {
+    badge.textContent = total;
+    badge.style.display = total > 0 ? "" : "none";
+  }
+
+  const itemsEl = document.getElementById("cart-items");
+  const emptyEl = document.getElementById("cart-empty");
+  const footerEl = document.getElementById("cart-footer");
+  const totalEl  = document.getElementById("cart-total-price");
+  if (!itemsEl) return;
+
+  if (cart.length === 0) {
+    emptyEl.style.display = "";
+    footerEl.style.display = "none";
+    // Clear all item rows
+    [...itemsEl.querySelectorAll(".cart-item")].forEach(el => el.remove());
+    return;
+  }
+
+  emptyEl.style.display = "none";
+  footerEl.style.display = "";
+
+  // Re-render cart items
+  [...itemsEl.querySelectorAll(".cart-item")].forEach(el => el.remove());
+  cart.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "cart-item";
+    div.innerHTML = `
+      <div class="cart-item-img" style="background:${item.bg}">
+        ${item.imageUrl ? `<img src="${item.imageUrl}" alt="" onerror="this.remove()">` : `<span>${item.emoji}</span>`}
+      </div>
+      <div class="cart-item-info">
+        <p>${item.name}</p>
+        <span>£6.00</span>
+      </div>
+      <div class="cart-item-qty">
+        <button onclick="changeQty(${item.id}, -1)">−</button>
+        <span>${item.qty}</span>
+        <button onclick="changeQty(${item.id}, 1)">+</button>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart(${item.id})">✕</button>
+    `;
+    itemsEl.appendChild(div);
+  });
+
+  const grandTotal = cart.reduce((s, i) => s + i.qty * 6, 0);
+  totalEl.textContent = `£${grandTotal.toFixed(2)}`;
+}
+
+function addToCart(productId) {
+  const p = products.find(x => x.id === productId);
+  if (!p) return;
+  const existing = cart.find(i => i.id === productId);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ id: p.id, name: p.name, price: 600, qty: 1,
+                imageUrl: p.imageUrl, emoji: p.emoji, bg: p.bg });
+  }
+  saveCart();
+  // Pulse the cart icon
+  const btn = document.getElementById("cart-nav-btn");
+  if (btn) { btn.classList.add("cart-pulse"); setTimeout(() => btn.classList.remove("cart-pulse"), 600); }
+  // Brief toast
+  showAddedToast(p.name);
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(i => i.id !== productId);
+  saveCart();
+}
+
+function changeQty(productId, delta) {
+  const item = cart.find(i => i.id === productId);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== productId);
+  saveCart();
+}
+
+function clearCart() {
+  cart = [];
+  saveCart();
+}
+
+function openCart() {
+  document.getElementById("cart-drawer").classList.add("open");
+  document.getElementById("cart-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeCart() {
+  document.getElementById("cart-drawer").classList.remove("open");
+  document.getElementById("cart-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function closeCartOverlay(e) {
+  if (e.target === document.getElementById("cart-overlay")) closeCart();
+}
+
+let addedToastTimer;
+function showAddedToast(name) {
+  let toast = document.getElementById("added-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "added-toast";
+    toast.className = "added-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = `✅ Added to basket!`;
+  toast.classList.add("show");
+  clearTimeout(addedToastTimer);
+  addedToastTimer = setTimeout(() => toast.classList.remove("show"), 2000);
+}
+
+async function checkoutCart() {
+  if (cart.length === 0) return;
+  const btn = document.getElementById("cart-checkout-btn");
+  document.getElementById("cart-checkout-text").style.display = "none";
+  document.getElementById("cart-checkout-spinner").style.display = "";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })) })
+    });
+    const data = await res.json();
+    if (data.url) {
+      closeCart();
+      clearCart();
+      window.open(data.url, "_blank");
+    } else {
+      alert("Checkout failed. Please try again.");
+    }
+  } catch(err) {
+    console.error(err);
+    alert("Checkout failed. Please try again.");
+  } finally {
+    btn.disabled = false;
+    document.getElementById("cart-checkout-text").style.display = "";
+    document.getElementById("cart-checkout-spinner").style.display = "none";
+  }
+}
+
+// Init cart UI on load
+updateCartUI();
 
 // -------------------------------------------------------
 //  CHATBOT UI
