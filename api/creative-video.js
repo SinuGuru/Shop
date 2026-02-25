@@ -8,8 +8,10 @@ const RUNWAY_BASE = "https://api.dev.runwayml.com/v1";
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
-  const { prompt, ratio = "1280:720", duration = 5, runwayKey } = req.body;
-  if (!runwayKey) return res.status(400).json({ error: "Missing Runway API key" });
+  const runwayKey = process.env.RUNWAY_API_KEY;
+  if (!runwayKey) return res.status(500).json({ error: "RUNWAY_API_KEY not configured on server" });
+
+  const { prompt, ratio = "1280:720", duration = 5 } = req.body;
   if (!prompt)    return res.status(400).json({ error: "Missing prompt" });
 
   try {

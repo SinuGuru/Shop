@@ -6,9 +6,10 @@
 const RUNWAY_BASE = "https://api.dev.runwayml.com/v1";
 
 module.exports = async function handler(req, res) {
-  const { taskId, runwayKey } = req.query;
+  const { taskId } = req.query;
+  const runwayKey  = process.env.RUNWAY_API_KEY;
   if (!taskId)    return res.status(400).json({ error: "Missing taskId" });
-  if (!runwayKey) return res.status(400).json({ error: "Missing runwayKey" });
+  if (!runwayKey) return res.status(500).json({ error: "RUNWAY_API_KEY not configured on server" });
 
   try {
     const r    = await fetch(`${RUNWAY_BASE}/tasks/${taskId}`, {

@@ -1337,9 +1337,9 @@ function proxyBase() {
 }
 
 function loadCreativeStudio() {
-  const key = localStorage.getItem("vk_runway_key") || "";
+  // Key is server-side (RUNWAY_API_KEY env var) — nothing to check client-side
   const warn = document.getElementById("creative-no-key");
-  if (warn) warn.style.display = key ? "none" : "flex";
+  if (warn) warn.style.display = "none";
 }
 
 function switchCreativeTab(tab) {
@@ -1391,8 +1391,6 @@ async function enhanceVidPrompt() {
 }
 
 async function generateImage() {
-  const runwayKey = localStorage.getItem("vk_runway_key") || "";
-  if (!runwayKey) { alert("Add your Runway API key in API Keys settings first."); return; }
   const prompt = document.getElementById("img-prompt").value.trim();
   if (!prompt)   { document.getElementById("img-status").innerHTML = `<span style="color:var(--danger)">Please enter a prompt.</span>`; return; }
   const ratio   = document.getElementById("img-ratio").value;
@@ -1409,7 +1407,7 @@ async function generateImage() {
     const res  = await fetch(`${proxyBase()}/creative-image`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, ratio, runwayKey })
+      body: JSON.stringify({ prompt, ratio })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Generation failed");
@@ -1443,8 +1441,6 @@ function useAsShopBanner() {
 
 let _vidPollInterval = null;
 async function generateVideo() {
-  const runwayKey = localStorage.getItem("vk_runway_key") || "";
-  if (!runwayKey) { alert("Add your Runway API key in API Keys settings first."); return; }
   const prompt   = document.getElementById("vid-prompt").value.trim();
   if (!prompt)   { document.getElementById("vid-status").innerHTML = `<span style="color:var(--danger)">Please enter a prompt.</span>`; return; }
   const ratio    = document.getElementById("vid-ratio").value;
@@ -1467,7 +1463,7 @@ async function generateVideo() {
     const res  = await fetch(`${proxyBase()}/creative-video`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, ratio, duration, runwayKey })
+      body: JSON.stringify({ prompt, ratio, duration })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Failed to start video");
@@ -1479,7 +1475,7 @@ async function generateVideo() {
     let fakePct = 5;
     _vidPollInterval = setInterval(async () => {
       try {
-        const pr = await fetch(`${proxyBase()}/creative-task?taskId=${taskId}&runwayKey=${encodeURIComponent(runwayKey)}`);
+        const pr = await fetch(`${proxyBase()}/creative-task?taskId=${taskId}`);
         const pd = await pr.json();
 
         if (pd.progress) {
