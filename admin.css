@@ -52,6 +52,13 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--t
   color: #fff; font-size: 1rem; font-weight: 600; border: none; cursor: pointer;
 }
 .pw-error { color: var(--danger); font-size: 0.83rem; margin-top: 10px; display: none; }
+.pw-forgot {
+  display: block; margin-top: 12px;
+  font-size: 0.8rem; color: rgba(255,255,255,.5);
+  cursor: pointer; text-decoration: underline;
+  transition: color .15s;
+}
+.pw-forgot:hover { color: rgba(255,255,255,.9); }
 
 /* ── LAYOUT ────────────────────────────────────────────── */
 #admin-app { display: flex; min-height: 100vh; }

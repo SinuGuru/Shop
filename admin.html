@@ -56,10 +56,27 @@
   <div class="pw-box">
     <div class="pw-logo">🌸</div>
     <h2>VeronikaK Admin</h2>
-    <p>Private area. Enter password to continue.</p>
-    <input id="pw-input" type="password" placeholder="••••••••" autofocus/>
-    <button onclick="checkPassword()">Enter <i class="fas fa-arrow-right"></i></button>
-    <div class="pw-error" id="pw-error">Wrong password. Try again.</div>
+
+    <!-- Login panel -->
+    <div id="login-panel">
+      <p>Private area. Enter password to continue.</p>
+      <input id="pw-input" type="password" placeholder="••••••••" autofocus/>
+      <button onclick="checkPassword()">Enter <i class="fas fa-arrow-right"></i></button>
+      <div class="pw-error" id="pw-error">Wrong password. Try again.</div>
+      <a class="pw-forgot" onclick="toggleRecovery(true)">Forgot password?</a>
+    </div>
+
+    <!-- Recovery panel -->
+    <div id="recovery-panel" style="display:none">
+      <p>Enter your <strong>recovery code</strong> to set a new password.</p>
+      <input id="rec-code"    type="text"     placeholder="XXXX-XXXX-XXXX" autocomplete="off" style="text-transform:uppercase;letter-spacing:.1em"/>
+      <input id="rec-newpw"   type="password" placeholder="New password (min 6 chars)"/>
+      <input id="rec-confirm" type="password" placeholder="Confirm new password"/>
+      <button onclick="useRecoveryCode()"><i class="fas fa-key"></i> Reset Password</button>
+      <div class="pw-error" id="rec-error" style="display:none"></div>
+      <div id="rec-success"  style="display:none;color:#4ade80;font-size:.85rem;margin-top:8px"></div>
+      <a class="pw-forgot" onclick="toggleRecovery(false)">← Back to login</a>
+    </div>
   </div>
 </div>
 

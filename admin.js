@@ -55,11 +55,68 @@ async function changeAdminPassword() {
     document.getElementById("pw-current").value = "";
     return;
   }
-  localStorage.setItem("vk_admin_pw_hash", await hashStr(newPw));
+
+  // Generate recovery code: 3 groups of 4 uppercase alphanumeric chars
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no ambiguous I/O/0/1
+  const seg   = () => Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => chars[b % chars.length]).join("");
+  const code  = `${seg()}-${seg()}-${seg()}`;
+
+  localStorage.setItem("vk_admin_pw_hash",       await hashStr(newPw));
+  localStorage.setItem("vk_admin_recovery_hash", await hashStr(code.replace(/-/g, "")));
+
   document.getElementById("pw-current").value = "";
   document.getElementById("pw-new").value     = "";
   document.getElementById("pw-confirm").value = "";
-  setStatus("✅ Password changed! Use it next time you log in.", "var(--success)");
+
+  statusEl.innerHTML = `
+    <div style="margin-top:12px;padding:16px;background:rgba(74,222,128,.12);border:1.5px solid #4ade80;border-radius:12px">
+      <div style="font-weight:700;color:#4ade80;margin-bottom:8px">✅ Password changed!</div>
+      <div style="font-size:.8rem;color:var(--gray);margin-bottom:10px">Save your recovery code somewhere safe. It will only be shown <strong>once</strong>.</div>
+      <div id="rc-display" style="font-size:1.35rem;font-weight:700;letter-spacing:.18em;color:var(--text);font-family:monospace;background:var(--surface2);padding:10px 16px;border-radius:8px;display:inline-block">${code}</div>
+      <br><button onclick="copyRecoveryCode('${code}')" style="margin-top:10px;padding:6px 14px;border-radius:8px;border:none;background:var(--pink);color:#fff;font-size:.8rem;cursor:pointer"><i class='fas fa-copy'></i> Copy code</button>
+    </div>`;
+}
+
+async function useRecoveryCode() {
+  const raw     = document.getElementById("rec-code").value.trim().toUpperCase().replace(/-/g, "");
+  const newPw   = document.getElementById("rec-newpw").value;
+  const confirm = document.getElementById("rec-confirm").value;
+  const errEl   = document.getElementById("rec-error");
+  const okEl    = document.getElementById("rec-success");
+  function showErr(msg) { errEl.textContent = msg; errEl.style.display = "block"; okEl.style.display = "none"; }
+
+  if (!raw || !newPw || !confirm) return showErr("Please fill in all fields.");
+  if (newPw !== confirm)          return showErr("Passwords don't match.");
+  if (newPw.length < 6)          return showErr("Password must be at least 6 characters.");
+
+  const storedHash = localStorage.getItem("vk_admin_recovery_hash");
+  if (!storedHash) return showErr("No recovery code set. You must change your password first to generate one.");
+
+  const enteredHash = await hashStr(raw);
+  if (enteredHash !== storedHash) return showErr("Recovery code is incorrect.");
+
+  // Valid — set new password and clear recovery code (single-use)
+  localStorage.setItem("vk_admin_pw_hash", await hashStr(newPw));
+  localStorage.removeItem("vk_admin_recovery_hash");
+
+  errEl.style.display = "none";
+  okEl.textContent = "✅ Password reset! Go back to login."; okEl.style.display = "block";
+  document.getElementById("rec-code").value    = "";
+  document.getElementById("rec-newpw").value   = "";
+  document.getElementById("rec-confirm").value = "";
+}
+
+function toggleRecovery(show) {
+  document.getElementById("login-panel").style.display    = show ? "none"  : "block";
+  document.getElementById("recovery-panel").style.display = show ? "block" : "none";
+  if (show) document.getElementById("rec-code").focus();
+  else      document.getElementById("pw-input").focus();
+}
+
+function copyRecoveryCode(code) {
+  navigator.clipboard.writeText(code).catch(() => {});
+  const btn = event.target.closest("button");
+  if (btn) { btn.textContent = "✅ Copied!"; setTimeout(() => { btn.innerHTML = "<i class='fas fa-copy'></i> Copy code"; }, 2000); }
 }
 
 // ── Page Navigation ────────────────────────────────────────────
