@@ -9,7 +9,7 @@
     // Sync colour theme from admin skin preference (runs before paint to avoid flash)
     (function(){
       const s = localStorage.getItem("vk_admin_skin");
-      if (s && s !== "dark") document.documentElement.classList.add("theme-" + s);
+      if (s) document.documentElement.classList.add("theme-" + s);
     })();
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>

@@ -25,6 +25,54 @@ img { max-width: 100%; }
 }
 
 /* ── SHOP THEMES (synced from admin skin choice) ───────────── */
+/* theme-dark: true dark background */
+html.theme-dark {
+  --pink:       #f06292;
+  --pink-light: #3a1a2e;
+  --pink-soft:  #2a1020;
+  --purple:     #ce93d8;
+  --gray:       #aaa;
+  --light-gray: #1e1e2e;
+  --shadow:     0 4px 24px rgba(0,0,0,.4);
+  --shadow-lg:  0 12px 40px rgba(0,0,0,.5);
+}
+html.theme-dark body {
+  background: #121218;
+  color: #f0e6f6;
+}
+html.theme-dark .navbar {
+  background: rgba(22,18,30,.97) !important;
+  border-bottom-color: #2e1f3e;
+}
+html.theme-dark .product-card {
+  background: #1e1a2e;
+  border-color: #2e2040;
+  color: #f0e6f6;
+}
+html.theme-dark .product-name { color: #f0e6f6; }
+html.theme-dark .product-price { color: var(--pink); }
+html.theme-dark .product-tag { background: #2e1a3e; color: #f06292; }
+html.theme-dark .products-filter-btn {
+  background: #1e1a2e; color: #ccc;
+  border-color: #2e2040;
+}
+html.theme-dark .products-filter-btn.active,
+html.theme-dark .products-filter-btn:hover { background: var(--pink); color: #fff; }
+html.theme-dark section { color: #f0e6f6; }
+html.theme-dark .about { background: #1a1626; }
+html.theme-dark .section-title { color: #f0e6f6; }
+html.theme-dark .stat-card { background: #1e1a2e; }
+html.theme-dark .contact-card { background: #1e1a2e; color: #f0e6f6; }
+html.theme-dark .checkout-modal { background: #1e1a2e; color: #f0e6f6; }
+html.theme-dark .checkout-modal input,
+html.theme-dark .checkout-modal select { background: #2a2040; color: #f0e6f6; border-color: #3a2850; }
+html.theme-dark .cart-drawer { background: #1a1626; }
+html.theme-dark .cart-item { border-color: #2e2040; }
+html.theme-dark .cart-item-name { color: #f0e6f6; }
+html.theme-dark footer { background: #0d0b14; color: #aaa; }
+html.theme-dark .lightbox-box { background: #1e1a2e; }
+html.theme-dark #shop-banner.banner-pink  { background: linear-gradient(90deg,#4a1a3a,#6b1246); color: #f9a8d4; }
+
 /* theme-light: soft neutrals, keep pink accent */
 html.theme-light {
   --pink:       #e91e8c;
