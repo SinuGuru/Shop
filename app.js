@@ -224,6 +224,18 @@ function closeCheckoutDirect() {
   document.body.style.overflow = "";
 }
 
+// Mobile-safe navigation: window.open is blocked on iOS when called after async
+// so we open in same tab on mobile, new tab on desktop
+function safeOpen(url) {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    location.href = url;
+  } else {
+    const w = window.open(url, "_blank");
+    if (!w) location.href = url; // fallback if popup blocked
+  }
+}
+
 async function proceedToCheckout() {
   if (!checkoutProduct) return;
 
@@ -242,7 +254,7 @@ async function proceedToCheckout() {
 
     if (data.url) {
       closeCheckoutDirect();
-      window.open(data.url, "_blank");
+      safeOpen(data.url);
     } else {
       alert("Sorry, checkout failed. Please try again or visit sinuguru.square.site");
       btn.disabled = false;
@@ -253,7 +265,7 @@ async function proceedToCheckout() {
     console.error(err);
     // Fallback to Square site
     closeCheckoutDirect();
-    window.open(checkoutProduct.url, "_blank");
+    safeOpen(checkoutProduct.url);
   }
 }
 
@@ -413,7 +425,7 @@ async function checkoutCart() {
     if (data.url) {
       closeCart();
       clearCart();
-      window.open(data.url, "_blank");
+      safeOpen(data.url);
     } else {
       alert("Checkout failed. Please try again.");
     }

@@ -450,6 +450,8 @@ section { padding: 80px 60px; }
   .contact-wrapper { flex-direction: column; align-items: center; }
   .checkout-modal { margin: 16px; border-radius: 20px; }
   .checkout-product-img { height: 200px; }
+  .cart-drawer { width: 100vw; }
+  .product-btns { flex-wrap: wrap; }
 }
 
 /* ========================
