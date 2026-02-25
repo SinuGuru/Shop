@@ -1,20 +1,20 @@
 ﻿// ============================================================
-//  sync-products.js  â€”  VeronikaK Auto Product Sync
+//  sync-products.js  —  VeronikaK Auto Product Sync
 // ============================================================
 //  HOW TO USE:
 //    node sync-products.js --square=YOUR_SQUARE_TOKEN
-//      â†’ Fetches products from Square API, generates fallback descriptions
-//      â†’ Updates products.js + pushes descriptions back to Square
+//      → Fetches products from Square API, generates fallback descriptions
+//      → Updates products.js + pushes descriptions back to Square
 //
 //    node sync-products.js --square=YOUR_SQUARE_TOKEN --key=sk-xxxx
-//      â†’ Same as above but uses GPT-4o Vision for real AI descriptions
+//      → Same as above but uses GPT-4o Vision for real AI descriptions
 // ============================================================
 
 const axios  = require("axios");
 const fs     = require("fs");
 const path   = require("path");
 
-// â”€â”€ Parse CLI args â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Parse CLI args ───────────────────────────────────────────
 const args = Object.fromEntries(
   process.argv.slice(2)
     .filter(a => a.startsWith("--"))
@@ -29,9 +29,9 @@ const SHOP_URL     = "https://sinuguru.square.site";
 const DELAY_MS     = 1200;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-function ok(msg)   { console.log(`  âœ… ${msg}`); }
-function warn(msg) { console.log(`  âš ️  ${msg}`); }
-function info(msg) { console.log(`\nðŸ“Œ ${msg}`); }
+function ok(msg)   { console.log(`  ✅ ${msg}`); }
+function warn(msg) { console.log(`  ⚠️  ${msg}`); }
+function info(msg) { console.log(`\n📌 ${msg}`); }
 
 const squareHeaders = {
   "Authorization": `Bearer ${SQUARE_TOKEN}`,
@@ -39,7 +39,7 @@ const squareHeaders = {
   "Square-Version": "2024-01-18"
 };
 
-// â”€â”€ Fetch all catalog items from Square API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Fetch all catalog items from Square API ───────────────────
 async function fetchSquareCatalog() {
   info("Fetching products from Square API...");
   const items = [];
@@ -59,7 +59,7 @@ async function fetchSquareCatalog() {
   return items;
 }
 
-// â”€â”€ Fetch image URL for a Square image ID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Fetch image URL for a Square image ID ────────────────────
 async function fetchSquareImageUrl(imageId) {
   try {
     const { data } = await axios.get(`${SQUARE_API}/catalog/object/${imageId}`, {
@@ -69,7 +69,7 @@ async function fetchSquareImageUrl(imageId) {
   } catch { return ""; }
 }
 
-// â”€â”€ Update description on Square â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Update description on Square ─────────────────────────────
 async function pushDescriptionToSquare(item, description) {
   try {
     const updated = JSON.parse(JSON.stringify(item)); // deep clone
@@ -91,7 +91,7 @@ async function pushDescriptionToSquare(item, description) {
   }
 }
 
-// â”€â”€ Generate AI description from image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Generate AI description from image ───────────────────────
 async function generateDescription(name, imageUrl) {
   if (!OPENAI_KEY || !imageUrl) return null;
   try {
@@ -104,7 +104,7 @@ async function generateDescription(name, imageUrl) {
           {
             role: "system",
             content: `You are a product description writer for "VeronikaK", a UK handmade jewellery shop (sinuguru.square.site).
-Write a compelling 1â€“2 sentence product description based on the image.
+Write a compelling 1–2 sentence product description based on the image.
 Rules: be specific about colours/materials/style, mention handmade, make people want to buy it, max 30 words, no hashtags, no price.`
           },
           {
@@ -125,11 +125,11 @@ Rules: be specific about colours/materials/style, mention handmade, make people 
   }
 }
 
-// â”€â”€ Fallback descriptions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Fallback descriptions ─────────────────────────────────────
 function buildFallbackDescription(name, category) {
   if (category === "Earrings") return "Beautiful handmade beaded earrings. Lightweight, stylish, and the perfect finishing touch to any look.";
   if (category === "Kids")     return "Fun and colourful handmade bracelet sized for children. Stretch fit, safe, and comfortable for little wrists.";
-  if (category === "Braided")  return "Handcrafted braided bracelet with a beautiful woven design. Lightweight and stylish â€” perfect for everyday wear.";
+  if (category === "Braided")  return "Handcrafted braided bracelet with a beautiful woven design. Lightweight and stylish — perfect for everyday wear.";
   const n = name.toLowerCase();
   const size  = (n.match(/\d+mm/) || [""])[0];
   const color = n.includes("brown") ? "brown & yellow" : n.includes("blue") ? "blue & yellow" : n.includes("clear") ? "crystal clear" : "vibrant";
@@ -137,7 +137,7 @@ function buildFallbackDescription(name, category) {
   return `Handmade stretch bracelet featuring ${size ? size + " " : ""}${color} round beads with ${shape}. Fits most adults.`;
 }
 
-// â”€â”€ Category / style helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Category / style helpers ──────────────────────────────────
 function detectCategory(name) {
   const n = name.toLowerCase();
   if (n.includes("earring"))          return "Earrings";
@@ -146,14 +146,14 @@ function detectCategory(name) {
   return "Bracelets";
 }
 function detectEmoji(cat, name) {
-  if (cat === "Earrings") return ["ðŸ’Ž","ðŸŒ¸","âœ¨","ðŸ’œ","ðŸŒº","ðŸª©"][Math.floor(Math.random()*6)];
-  if (cat === "Kids")     return ["ðŸŒˆ","ðŸŽ ","ðŸŽ¡","ðŸŽ€","⭐","ðŸ¦‹"][Math.floor(Math.random()*6)];
-  if (cat === "Braided")  return ["ðŸŒ¿","ðŸƒ","ðŸŒ¾","ðŸŽ‹","ðŸª¢","ðŸŒ»"][Math.floor(Math.random()*6)];
+  if (cat === "Earrings") return ["💎","🌸","✨","💜","🌺","🪩"][Math.floor(Math.random()*6)];
+  if (cat === "Kids")     return ["🌈","🎠","🎡","🎀","⭐","🦋"][Math.floor(Math.random()*6)];
+  if (cat === "Braided")  return ["🌿","ðŸƒ","🌾","🎋","🪢","🌻"][Math.floor(Math.random()*6)];
   const n = name.toLowerCase();
-  if (n.includes("purple")) return "ðŸ’œ"; if (n.includes("blue")) return "ðŸ’™";
-  if (n.includes("brown"))  return "ðŸ¤Ž"; if (n.includes("clear")) return "ðŸ”®";
+  if (n.includes("purple")) return "💜"; if (n.includes("blue")) return "💙";
+  if (n.includes("brown"))  return "🤎"; if (n.includes("clear")) return "🔮";
   if (n.includes("star"))   return "⭐";
-  return ["ðŸ’Ž","ðŸŒ¸","âœ¨","ðŸª©","ðŸŒŸ","ðŸ”®"][Math.floor(Math.random()*6)];
+  return ["💎","🌸","✨","🪩","🌟","🔮"][Math.floor(Math.random()*6)];
 }
 function detectBg(cat, name) {
   if (cat === "Earrings") return "#fce4f3";
@@ -164,9 +164,9 @@ function detectBg(cat, name) {
   if (n.includes("brown"))  return "#efebe9"; if (n.includes("clear")) return "#e8eaf6";
   return "#fff0f9";
 }
-const TAGS = ["Best Seller ⭐","Popular ðŸ’•","Trending ðŸ”¥","New ðŸŒ¸","Sale ðŸ·️","Handmade ðŸ’›","Gift Idea ðŸŽ","Unique ðŸ’Ž"];
+const TAGS = ["Best Seller ⭐","Popular 💕","Trending 🔥","New 🌸","Sale ðŸ·️","Handmade 💛","Gift Idea ðŸŽ","Unique 💎"];
 
-// â”€â”€ Write products.js â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Write products.js ─────────────────────────────────────────
 function writeProductsFile(products) {
   const lines = products.map(p => `  {
     id: ${p.id},
@@ -181,7 +181,7 @@ function writeProductsFile(products) {
     imageUrl: ${JSON.stringify(p.imageUrl)}
   }`);
   const content = `// ============================================================
-//  PRODUCT CATALOG â€” VeronikaK
+//  PRODUCT CATALOG — VeronikaK
 //  AUTO-GENERATED by sync-products.js on ${new Date().toLocaleDateString("en-GB")}
 //  ${products.length} products synced from Square API
 // ============================================================
@@ -195,19 +195,19 @@ ${lines.join(",\n")}
   fs.writeFileSync(path.join(__dirname, "products.js"), content, "utf8");
 }
 
-// â”€â”€ MAIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── MAIN ──────────────────────────────────────────────────────
 async function main() {
-  console.log("\nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
-  console.log("â•‘   VeronikaK â€” Auto Product Sync (Square API)    â•‘");
-  console.log("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
+  console.log("\n╔â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•╗");
+  console.log("║   VeronikaK — Auto Product Sync (Square API)    ║");
+  console.log("╚â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
 
   if (!SQUARE_TOKEN) {
     console.error("\n�Œ No Square token. Run with: node sync-products.js --square=YOUR_TOKEN");
     process.exit(1);
   }
   console.log(DRY_RUN
-    ? "\nâš¡ FALLBACK DESCRIPTIONS (add --key=sk-xxx for AI Vision)\n"
-    : "\nðŸ¤– AI MODE â€” GPT-4o Vision + Square API sync\n");
+    ? "\n⚡ FALLBACK DESCRIPTIONS (add --key=sk-xxx for AI Vision)\n"
+    : "\n🤖 AI MODE — GPT-4o Vision + Square API sync\n");
 
   // Step 1: Fetch from Square API
   const catalogItems = await fetchSquareCatalog();
@@ -252,7 +252,7 @@ async function main() {
     }
     if (description) {
       aiOk++;
-      process.stdout.write(` ðŸ¤–`);
+      process.stdout.write(` 🤖`);
     } else {
       description = buildFallbackDescription(name, detectCategory(name));
       aiFallback++;
@@ -262,7 +262,7 @@ async function main() {
     // Push back to Square
     if (SQUARE_TOKEN) {
       const pushed = await pushDescriptionToSquare(item, description);
-      if (pushed) { squareUpdated++; process.stdout.write(` âœ… Square`); }
+      if (pushed) { squareUpdated++; process.stdout.write(` ✅ Square`); }
     }
     console.log("");
 
@@ -289,18 +289,18 @@ async function main() {
   // Summary
   const cats = {};
   finalProducts.forEach(p => { cats[p.category] = (cats[p.category]||0)+1; });
-  console.log("\nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
-  console.log("â•‘   Done!                                          â•‘");
-  console.log("â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£");
-  console.log(`â•‘  Products:            ${String(finalProducts.length).padEnd(27)}â•‘`);
-  console.log(`â•‘  AI descriptions:     ${String(aiOk).padEnd(27)}â•‘`);
-  console.log(`â•‘  Fallback:            ${String(aiFallback).padEnd(27)}â•‘`);
-  console.log(`â•‘  Square updated:      ${String(squareUpdated).padEnd(27)}â•‘`);
-  console.log("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n");
-  console.log("ðŸ“¦ Categories:");
+  console.log("\n╔â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•╗");
+  console.log("║   Done!                                          ║");
+  console.log("╠â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•╣");
+  console.log(`║  Products:            ${String(finalProducts.length).padEnd(27)}║`);
+  console.log(`║  AI descriptions:     ${String(aiOk).padEnd(27)}║`);
+  console.log(`║  Fallback:            ${String(aiFallback).padEnd(27)}║`);
+  console.log(`║  Square updated:      ${String(squareUpdated).padEnd(27)}║`);
+  console.log("╚â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n");
+  console.log("📦 Categories:");
   Object.entries(cats).forEach(([c,n]) => console.log(`   ${c.padEnd(15)} ${n} items`));
 
-  console.log("\nðŸ’¡ To push to GitHub too, run:");
+  console.log("\n💡 To push to GitHub too, run:");
   console.log("   node download-images.js");
   console.log("   git add . && git commit -m \"Update products\" && git push\n");
 }
