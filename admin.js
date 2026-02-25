@@ -41,6 +41,7 @@ function switchPage(page, el) {
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
   document.getElementById("page-" + page).classList.add("active");
   if (el) el.classList.add("active");
+  if (page === "orders") loadOrdersPage();
   return false;
 }
 
@@ -63,7 +64,92 @@ function updateStats() {
   document.getElementById("stat-images").textContent   = imgCount;
   document.getElementById("prod-count-badge").textContent = adminProducts.length;
 }
-
+// ── Orders & Stock ─────────────────────────────────────────
+let _ordersLoaded = false;
+async function loadOrdersPage(force = false) {
+  if (_ordersLoaded && !force) return;
+  const loading   = document.getElementById("orders-loading");
+  const statsEl   = document.getElementById("orders-stats");
+  const tableWrap = document.getElementById("orders-table-wrap");
+  const invWrap   = document.getElementById("inventory-wrap");
+  const errEl     = document.getElementById("orders-error");
+  loading.style.display  = "flex";
+  statsEl.style.display  = "none";
+  tableWrap.style.display = "none";
+  invWrap.style.display  = "none";
+  errEl.style.display    = "none";
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal
+      ? "https://shop-sandy-theta.vercel.app/api/orders?type=all"
+      : "/api/orders?type=all";
+    const res  = await fetch(API);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "API error " + res.status);
+    // — Stats
+    if (data.stats) {
+      statsEl.innerHTML = `
+        <div class="stat-card"><i class="fas fa-receipt"></i><div><span>${data.stats.total}</span><small>Total Orders</small></div></div>
+        <div class="stat-card"><i class="fas fa-sterling-sign"></i><div><span>£${data.stats.revenue}</span><small>Revenue</small></div></div>
+        <div class="stat-card"><i class="fas fa-circle-check"></i><div><span>${data.stats.completed}</span><small>Completed</small></div></div>
+        <div class="stat-card"><i class="fas fa-clock"></i><div><span>${data.stats.open}</span><small>Pending</small></div></div>
+        <div class="stat-card"><i class="fas fa-bag-shopping"></i><div><span>${data.stats.items_sold}</span><small>Items Sold</small></div></div>`;
+      statsEl.style.display = "grid";
+    }
+    // — Orders table
+    if (data.orders) {
+      const tbody = data.orders.length ? `
+        <div class="orders-scroll">
+          <table class="orders-tbl">
+            <thead><tr><th>Date</th><th>Customer</th><th>Ship To</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody>${data.orders.map(o => `
+              <tr>
+                <td>${new Date(o.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"})}</td>
+                <td><strong>${escHtml(o.customer.name)}</strong>${o.customer.email?`<br><small>${escHtml(o.customer.email)}</small>`:""}</td>
+                <td><small>${escHtml(o.address||"—")}</small></td>
+                <td><small>${o.items.map(i=>`${i.qty}× ${escHtml(i.name)}`).join("<br>")||""}</small></td>
+                <td><strong>£${o.total}</strong></td>
+                <td><span class="order-badge order-${o.state.toLowerCase()}">${o.state}</span></td>
+              </tr>`).join("")}
+            </tbody>
+          </table>
+        </div>` : `<p style="color:var(--gray);padding:16px 0">No orders yet — they\'ll appear here once customers check out.</p>`;
+      document.getElementById("orders-table").innerHTML = tbody;
+      tableWrap.style.display = "block";
+    }
+    // — Inventory
+    if (data.inventory !== undefined) {
+      const invHtml = data.inventory.length ? `
+        <div class="orders-scroll">
+          <table class="orders-tbl">
+            <thead><tr><th>Product</th><th>Variation</th><th>Qty</th><th>Level</th></tr></thead>
+            <tbody>${data.inventory.map(item => {
+              const pct   = Math.min(100, (item.quantity / 20) * 100);
+              const color = item.quantity <= 2 ? "var(--danger)" : item.quantity <= 5 ? "#f59e0b" : "var(--success)";
+              return `<tr>
+                <td><strong>${escHtml(item.product_name)}</strong></td>
+                <td><small>${escHtml(item.variation)}</small></td>
+                <td><strong style="color:${color}">${item.quantity}</strong></td>
+                <td><div class="stock-bar"><div class="stock-fill" style="width:${pct}%;background:${color}"></div></div></td>
+              </tr>`;
+            }).join("")}
+            </tbody>
+          </table>
+        </div>` : `<p style="color:var(--gray);font-size:.88rem;line-height:1.8">No stock tracking data found.<br>Enable it in <strong>Square Dashboard → Items → click any product → Stock tab → Track inventory</strong>.</p>`;
+      document.getElementById("inventory-table").innerHTML = invHtml;
+      invWrap.style.display = "block";
+    }
+    _ordersLoaded = true;
+  } catch (err) {
+    errEl.innerHTML = `<div class="sync-note" style="border-color:var(--danger);margin-bottom:20px"><i class="fas fa-circle-xmark" style="color:var(--danger)"></i><span><strong>Could not load orders:</strong> ${escHtml(err.message)}</span></div>`;
+    errEl.style.display = "block";
+  } finally {
+    loading.style.display = "none";
+  }
+}
+function escHtml(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
 // ── Product List ──────────────────────────────────────────────
 function renderProductList(filter = "", cat = "") {
   const list = document.getElementById("product-list");

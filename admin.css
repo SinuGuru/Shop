@@ -467,3 +467,65 @@ html.theme-ocean {
   background: linear-gradient(135deg, var(--pink), var(--purple));
   color: #fff; border-color: transparent;
 }
+
+/* ═══════════════════════════════════════════════════════
+   ORDERS & STOCK PAGE
+═══════════════════════════════════════════════════════ */
+.orders-loading {
+  display: none; align-items: center; gap: 12px;
+  padding: 40px 0; color: var(--gray); font-size: .95rem;
+}
+.orders-loading i { font-size: 1.4rem; color: var(--pink); }
+
+.orders-scroll {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.orders-tbl {
+  width: 100%; border-collapse: collapse;
+  font-size: .83rem;
+}
+.orders-tbl thead th {
+  background: var(--surface2);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+.orders-tbl tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.orders-tbl tbody tr:last-child { border-bottom: none; }
+.orders-tbl tbody tr:hover { background: var(--surface2); }
+.orders-tbl td {
+  padding: 10px 14px;
+  color: var(--text);
+  vertical-align: top;
+}
+.orders-tbl td small { color: var(--gray); font-size: .78rem; }
+
+/* Order status badges */
+.order-badge {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 50px;
+  font-size: .73rem; font-weight: 700; letter-spacing: .03em; white-space: nowrap;
+}
+.order-open      { background: #fef3c7; color: #92400e; }
+.order-completed { background: #d1fae5; color: #065f46; }
+.order-canceled  { background: #fee2e2; color: #991b1b; }
+.order-draft     { background: var(--surface2); color: var(--gray); }
+
+/* Stock bar */
+.stock-bar {
+  width: 100px; height: 8px;
+  background: var(--border);
+  border-radius: 99px; overflow: hidden;
+}
+.stock-fill {
+  height: 100%; border-radius: 99px;
+  transition: width .4s;
+}

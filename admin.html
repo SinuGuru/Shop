@@ -78,6 +78,9 @@
       <a href="#" class="nav-item" onclick="switchPage('sync',this)">
         <i class="fas fa-rotate"></i> Sync Tools
       </a>
+      <a href="#" class="nav-item" onclick="switchPage('orders',this)">
+        <i class="fas fa-receipt"></i> Orders
+      </a>
       <a href="#" class="nav-item" onclick="switchPage('settings',this)">
         <i class="fas fa-key"></i> API Keys
       </a>
@@ -443,6 +446,32 @@
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- ── ORDERS PAGE ──────────────────────────────────── -->
+    <div id="page-orders" class="page">
+      <div class="page-header">
+        <h1>Orders &amp; Stock</h1>
+        <button class="btn-outline" onclick="loadOrdersPage(true)"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+      <div id="orders-loading" class="orders-loading">
+        <i class="fas fa-spinner fa-spin"></i> Loading from Square...
+      </div>
+      <div id="orders-error" style="display:none"></div>
+      <div id="orders-stats" class="stats-grid" style="display:none"></div>
+      <div id="orders-table-wrap" style="display:none">
+        <div class="dash-card">
+          <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
+          <div id="orders-table"></div>
+        </div>
+      </div>
+      <div id="inventory-wrap" style="display:none">
+        <div class="dash-card" style="margin-top:24px">
+          <h3><i class="fas fa-boxes-stacked"></i> Stock Levels</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:14px">From Square inventory tracking. If empty, enable it per product in <strong>Square Dashboard → Items → click a product → Stock tab → Track inventory</strong>.</p>
+          <div id="inventory-table"></div>
+        </div>
       </div>
     </div>
 
