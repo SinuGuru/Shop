@@ -536,3 +536,14 @@ html.theme-ocean {
   height: 100%; border-radius: 99px;
   transition: width .4s;
 }
+
+.order-cancel-btn {
+  padding: 4px 10px; border-radius: 6px;
+  border: 1.5px solid var(--danger); color: var(--danger);
+  background: transparent; cursor: pointer;
+  font-size: .75rem; font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap; transition: all .15s;
+}
+.order-cancel-btn:hover:not(:disabled) { background: var(--danger); color: #fff; }
+.order-cancel-btn:disabled { opacity: .5; cursor: not-allowed; }

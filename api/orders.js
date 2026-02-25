@@ -48,6 +48,7 @@ module.exports = async (req, res) => {
         const addr        = recipient?.address || null;
         return {
           id:         o.id,
+          version:    o.version,
           created_at: o.created_at,
           state:      o.state,           // OPEN, COMPLETED, CANCELED
           total:      o.total_money ? (o.total_money.amount / 100).toFixed(2) : "0.00",

@@ -185,15 +185,16 @@ async function loadOrdersPage(force = false) {
       const tbody = data.orders.length ? `
         <div class="orders-scroll">
           <table class="orders-tbl">
-            <thead><tr><th>Date</th><th>Customer</th><th>Ship To</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+            <thead><tr><th>Date</th><th>Customer</th><th>Ship To</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
             <tbody>${data.orders.map(o => `
-              <tr>
+              <tr id="order-row-${o.id}">
                 <td>${new Date(o.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"})}</td>
                 <td><strong>${escHtml(o.customer.name)}</strong>${o.customer.email?`<br><small>${escHtml(o.customer.email)}</small>`:""}</td>
                 <td><small>${escHtml(o.address||"—")}</small></td>
                 <td><small>${o.items.map(i=>`${i.qty}× ${escHtml(i.name)}`).join("<br>")||""}</small></td>
                 <td><strong>£${o.total}</strong></td>
-                <td><span class="order-badge order-${o.state.toLowerCase()}">${o.state}</span></td>
+                <td><span class="order-badge order-${o.state.toLowerCase()}" id="order-badge-${o.id}">${o.state}</span></td>
+                <td>${o.state === "OPEN" ? `<button class="order-cancel-btn" onclick="cancelOrder('${o.id}', ${o.version||1}, this)" title="Cancel order">✕ Cancel</button>` : ""}</td>
               </tr>`).join("")}
             </tbody>
           </table>
@@ -233,6 +234,31 @@ async function loadOrdersPage(force = false) {
 }
 function escHtml(s) {
   return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+async function cancelOrder(orderId, version, btn) {
+  if (!confirm("Cancel this order on Square? This cannot be undone.")) return;
+  btn.disabled = true;
+  btn.textContent = "Cancelling...";
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal ? "https://shop-sandy-theta.vercel.app/api/cancel-order" : "/api/cancel-order";
+    const res  = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId, version })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed");
+    // Update row in place
+    const badge = document.getElementById("order-badge-" + orderId);
+    if (badge) { badge.className = "order-badge order-canceled"; badge.textContent = "CANCELED"; }
+    btn.remove();
+  } catch (err) {
+    alert("Could not cancel order: " + err.message);
+    btn.disabled = false;
+    btn.textContent = "✕ Cancel";
+  }
 }
 // ── Product List ──────────────────────────────────────────────
 function renderProductList(filter = "", cat = "") {
