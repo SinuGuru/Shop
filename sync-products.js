@@ -164,7 +164,38 @@ function detectBg(cat, name) {
   if (n.includes("brown"))  return "#efebe9"; if (n.includes("clear")) return "#e8eaf6";
   return "#fff0f9";
 }
-const TAGS = ["Best Seller ⭐","Popular 💕","Trending 🔥","New 🌸","Sale ðŸ·️","Handmade 💛","Gift Idea ðŸŽ","Unique 💎"];
+const TAGS = ["Best Seller ⭐","Popular 💕","Trending 🔥","New 🌸","Sale 🏷️","Handmade 💛","Gift Idea 🎁","Unique 💎"];
+
+// ── Sitemap URL fetching & matching ──────────────────────────
+function slugify(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+async function fetchSitemapUrls() {
+  try {
+    const { data } = await axios.get(`${SHOP_URL}/sitemap.xml`, { timeout: 15000 });
+    const matches = [...data.matchAll(/<loc>(https:\/\/[^<]*\/product\/[^<]+)<\/loc>/g)];
+    return matches.map(m => m[1].trim());
+  } catch (err) {
+    warn(`Could not fetch sitemap: ${err.message}`);
+    return [];
+  }
+}
+
+function matchProductUrl(name, sitemapUrls) {
+  if (!sitemapUrls.length) return SHOP_URL;
+  const nameSlug = slugify(name);
+  let match = sitemapUrls.find(u => u.includes(`/product/${nameSlug}/`));
+  if (match) return match;
+  const nameWords = nameSlug.split("-").filter(w => w.length > 2);
+  let best = null, bestScore = 0;
+  for (const u of sitemapUrls) {
+    const urlSlug = u.replace(/.*\/product\//, "").replace(/\/\d+$/, "");
+    const hits = nameWords.filter(w => urlSlug.includes(w)).length;
+    if (hits > bestScore) { bestScore = hits; best = u; }
+  }
+  return bestScore >= 2 ? best : SHOP_URL;
+}
 
 // ── Write products.js ─────────────────────────────────────────
 function writeProductsFile(products) {
