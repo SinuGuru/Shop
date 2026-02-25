@@ -304,6 +304,18 @@
     🎉 Order placed! Thank you — we'll be in touch soon!
   </div>
 
+  <!-- IMAGE LIGHTBOX -->
+  <div class="lightbox-overlay" id="lightbox" onclick="closeZoom()" role="dialog" aria-modal="true">
+    <button class="lightbox-close" onclick="closeZoom()" aria-label="Close">&times;</button>
+    <div class="lightbox-box" onclick="event.stopPropagation()">
+      <div class="lightbox-img-wrap" id="lightbox-img-wrap"></div>
+      <div class="lightbox-info">
+        <span class="lightbox-name" id="lightbox-name"></span>
+        <span class="lightbox-price" id="lightbox-price"></span>
+      </div>
+    </div>
+  </div>
+
   <script src="products.js"></script>
   <script src="app.js"></script>
 </body>

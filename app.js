@@ -154,11 +154,12 @@ function renderProducts() {
 
   grid.innerHTML = products.map(p => `
     <div class="product-card" onclick="openCheckout(${p.id})">
-      <div class="product-img" style="background:${p.bg};">
+      <div class="product-img" style="background:${p.bg};" onclick="event.stopPropagation(); openZoom(${p.id})" title="Click to zoom">
         ${p.imageUrl
           ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.remove()">`
-          : p.emoji
+          : `<span>${p.emoji}</span>`
         }
+        <span class="zoom-hint">🔍</span>
       </div>
       <div class="product-body">
         <span class="product-tag">${p.tag}</span>
@@ -183,6 +184,29 @@ function renderProducts() {
 function goToProduct(url) {
   window.open(url, "_blank");
 }
+
+// -------------------------------------------------------
+//  IMAGE ZOOM LIGHTBOX
+// -------------------------------------------------------
+function openZoom(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const wrap = document.getElementById("lightbox-img-wrap");
+  wrap.innerHTML = p.imageUrl
+    ? `<img src="${p.imageUrl}" alt="${p.name}">`
+    : `<span style="font-size:6rem">${p.emoji}</span>`;
+  wrap.style.background = p.bg;
+  document.getElementById("lightbox-name").textContent = p.name;
+  document.getElementById("lightbox-price").textContent = p.price;
+  const lb = document.getElementById("lightbox");
+  lb.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+function closeZoom() {
+  document.getElementById("lightbox").classList.remove("active");
+  document.body.style.overflow = "";
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeZoom(); });
 
 // -------------------------------------------------------
 //  CHECKOUT MODAL
