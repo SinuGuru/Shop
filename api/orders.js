@@ -52,7 +52,14 @@ module.exports = async (req, res) => {
           created_at: o.created_at,
           state:      o.state,           // OPEN, COMPLETED, CANCELED
           total:      o.total_money ? (o.total_money.amount / 100).toFixed(2) : "0.00",
+          totalPence: o.total_money?.amount || 0,
           currency:   o.total_money?.currency || "GBP",
+          paymentIds: o.tender_ids || [],
+          tracking: {
+            carrier: shipDetails?.carrier || "",
+            number:  shipDetails?.tracking_number || "",
+            shipped: shipDetails?.shipped_at || ""
+          },
           customer: {
             name:  recipient?.display_name || o.customer_id || "Unknown",
             email: recipient?.email_address || "",

@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="admin.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
     // Lock body immediately before paint
     document.documentElement.style.overflow = "hidden";
@@ -107,6 +108,15 @@
       </a>
       <a href="#" class="nav-item" onclick="switchPage('orders',this)">
         <i class="fas fa-receipt"></i> Orders
+      </a>
+      <a href="#" class="nav-item" onclick="switchPage('analytics',this)">
+        <i class="fas fa-chart-line"></i> Analytics
+      </a>
+      <a href="#" class="nav-item" onclick="switchPage('discounts',this)">
+        <i class="fas fa-percent"></i> Discounts
+      </a>
+      <a href="#" class="nav-item" onclick="switchPage('shop-settings',this)">
+        <i class="fas fa-store-alt"></i> Shop Settings
       </a>
       <a href="#" class="nav-item" onclick="switchPage('settings',this)">
         <i class="fas fa-key"></i> API Keys
@@ -515,9 +525,166 @@
       </div>
     </div>
 
+    <!-- ── ANALYTICS PAGE ────────────────────────────────── -->
+    <div id="page-analytics" class="page">
+      <div class="page-header">
+        <h1>Analytics</h1>
+        <button class="btn-outline" onclick="loadAnalyticsPage(true)"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+      <div id="analytics-loading" class="orders-loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</div>
+      <div id="analytics-error" style="display:none"></div>
+      <div id="analytics-stats" class="stats-grid" style="display:none"></div>
+      <div id="revenue-chart-card" class="dash-card" style="display:none;margin-top:24px">
+        <h3><i class="fas fa-chart-line"></i> Revenue — Last 30 Days</h3>
+        <div style="position:relative;height:220px;margin-top:16px"><canvas id="revenue-chart"></canvas></div>
+      </div>
+      <div id="analytics-grid" class="dash-grid" style="display:none;margin-top:24px">
+        <div class="dash-card">
+          <h3><i class="fas fa-fire"></i> Best Sellers</h3>
+          <div id="best-sellers-list"></div>
+        </div>
+        <div class="dash-card">
+          <h3><i class="fas fa-users"></i> Customers</h3>
+          <div id="customer-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DISCOUNTS PAGE ────────────────────────────────── -->
+    <div id="page-discounts" class="page">
+      <div class="page-header">
+        <h1>Discount Codes</h1>
+        <button class="btn-outline" onclick="loadDiscountsPage(true)"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+      <div class="dash-card" style="max-width:500px;margin-bottom:24px">
+        <h3 style="margin-bottom:16px"><i class="fas fa-plus-circle"></i> Create Discount</h3>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="form-group">
+            <label>Name <small style="color:var(--gray)">(shown to customer at checkout)</small></label>
+            <input type="text" id="disc-name" placeholder="e.g. Spring Sale 10% Off"/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type</label>
+              <select id="disc-type" onchange="toggleDiscountFields()">
+                <option value="FIXED_PERCENTAGE">% Off (percentage)</option>
+                <option value="FIXED_AMOUNT">£ Off (fixed amount)</option>
+              </select>
+            </div>
+            <div class="form-group" id="disc-pct-wrap">
+              <label>Percentage (%)</label>
+              <input type="number" id="disc-pct" placeholder="10" min="1" max="100"/>
+            </div>
+            <div class="form-group" id="disc-amt-wrap" style="display:none">
+              <label>Amount (£)</label>
+              <input type="number" id="disc-amt" placeholder="2.00" step="0.01" min="0.01"/>
+            </div>
+          </div>
+          <button class="btn-primary" style="align-self:flex-start" onclick="createDiscount()"><i class="fas fa-plus"></i> Create Discount</button>
+          <div id="disc-status" style="font-size:.82rem"></div>
+        </div>
+      </div>
+      <div id="discounts-loading" class="orders-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+      <div id="discounts-list-wrap" style="display:none">
+        <div class="dash-card">
+          <h3><i class="fas fa-tags"></i> Active Discounts on Square</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin:8px 0 16px;line-height:1.6">These discounts are applied at the Square checkout. Customers see the discount automatically applied when checking out.</p>
+          <div id="discounts-table"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SHOP SETTINGS PAGE ──────────────────────────── -->
+    <div id="page-shop-settings" class="page">
+      <div class="page-header"><h1>Shop Settings</h1></div>
+      <div style="max-width:580px;display:flex;flex-direction:column;gap:20px">
+
+        <!-- Announcement Banner -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-bullhorn" style="color:var(--pink)"></i> Announcement Banner</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Shows a dismissable banner at the top of the shop. Saved in the browser — customers on the same device will see it.</p>
+          <label class="toggle-row">
+            <span>Show banner on shop</span>
+            <input type="checkbox" id="banner-enabled" class="toggle-check"/>
+            <span class="toggle-slider"></span>
+          </label>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+            <input type="text" id="banner-text" placeholder="🚚 Free shipping this week on all orders!" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <select id="banner-color" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none">
+              <option value="pink">Hot Pink</option>
+              <option value="rose">Deep Rose</option>
+              <option value="gold">🌟 Gold / Sale</option>
+              <option value="green">✅ Green / Info</option>
+              <option value="blue">💧 Blue / Calm</option>
+            </select>
+            <button class="btn-primary" style="align-self:flex-start" onclick="saveBanner()"><i class="fas fa-save"></i> Save Banner</button>
+            <div id="banner-status" style="font-size:.82rem"></div>
+          </div>
+        </div>
+
+        <!-- Email Notifications -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-bell" style="color:var(--pink)"></i> New Order Email Alerts</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Receive an email whenever a new order is placed. Requires your Gmail app password saved in <strong>API Keys</strong> and a Square webhook pointing to <code>https://shop-sandy-theta.vercel.app/api/webhook</code>.</p>
+          <label class="toggle-row" style="margin-bottom:12px">
+            <span>Enable email alerts</span>
+            <input type="checkbox" id="notif-enabled" class="toggle-check"/>
+            <span class="toggle-slider"></span>
+          </label>
+          <input type="email" id="notif-email" placeholder="your@email.com" style="width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none;margin-bottom:10px"/>
+          <button class="btn-primary" style="align-self:flex-start" onclick="saveNotifSettings()"><i class="fas fa-save"></i> Save</button>
+          <div id="notif-status" style="font-size:.82rem;margin-top:8px"></div>
+          <div class="sync-note" style="margin-top:16px">
+            <i class="fas fa-info-circle"></i>
+            <span>To set up the Square webhook: go to <a href="https://developer.squareup.com/apps" target="_blank">developer.squareup.com</a> → your app → Webhooks → Add URL: <strong>https://shop-sandy-theta.vercel.app/api/webhook</strong> → subscribe to <strong>order.created</strong>.</span>
+          </div>
+        </div>
+
+        <!-- Low Stock Threshold -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-triangle-exclamation" style="color:#f59e0b"></i> Low Stock Threshold</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Products with stock at or below this number show a warning in the Orders page.</p>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="number" id="low-stock-threshold" placeholder="3" min="1" max="20" style="width:100px;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" onclick="saveStockThreshold()"><i class="fas fa-save"></i> Save</button>
+          </div>
+          <div id="threshold-status" style="font-size:.82rem;margin-top:8px"></div>
+        </div>
+
+      </div>
+    </div>
+
   </main>
 </div>
-
+<!-- ══ SHIP ORDER MODAL ═════════════════════════════════ -->
+<div id="ship-modal" class="modal" onclick="if(event.target===this)closeShipModal()">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-header">
+      <h2><i class="fas fa-truck"></i> Mark as Shipped</h2>
+      <button class="modal-close" onclick="closeShipModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ship-order-id"/>
+      <input type="hidden" id="ship-order-version"/>
+      <div class="form-group">
+        <label>Carrier</label>
+        <select id="ship-carrier">
+          <option>Royal Mail</option><option>Evri (Hermes)</option><option>DPD</option>
+          <option>DHL</option><option>Yodel</option><option>ParcelForce</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tracking Number <small style="color:var(--gray)">(optional)</small></label>
+        <input type="text" id="ship-tracking" placeholder="e.g. JD000123456789"/>
+      </div>
+      <div id="ship-modal-status" style="font-size:.82rem"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeShipModal()">Cancel</button>
+      <button class="btn-primary" id="ship-submit-btn" onclick="submitShipOrder()"><i class="fas fa-truck"></i> Mark Shipped</button>
+    </div>
+  </div>
+</div>
 <!-- ══ ADD / EDIT PRODUCT MODAL ══════════════════════════════ -->
 <div id="product-modal" class="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">

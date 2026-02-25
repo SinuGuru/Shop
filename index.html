@@ -17,6 +17,25 @@
 </head>
 <body>
 
+  <!-- ANNOUNCEMENT BANNER (driven by admin Shop Settings) -->
+  <div id="shop-banner" style="display:none">
+    <span id="shop-banner-text"></span>
+    <button class="banner-close" onclick="this.parentElement.style.display='none'" title="Close">×</button>
+  </div>
+  <script>
+    (function(){
+      try {
+        const b = JSON.parse(localStorage.getItem("vk_banner")||"{}");
+        if (b.enabled && b.text) {
+          const el = document.getElementById("shop-banner");
+          document.getElementById("shop-banner-text").textContent = b.text;
+          el.classList.add("banner-" + (b.color||"pink"));
+          el.style.display = "flex";
+        }
+      } catch(e){}
+    })();
+  </script>
+
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-logo">🌸 VeronikaK</div>

@@ -125,7 +125,10 @@ function switchPage(page, el) {
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
   document.getElementById("page-" + page).classList.add("active");
   if (el) el.classList.add("active");
-  if (page === "orders") loadOrdersPage();
+  if (page === "orders")        loadOrdersPage();
+  if (page === "analytics")     loadAnalyticsPage();
+  if (page === "discounts")     loadDiscountsPage();
+  if (page === "shop-settings") loadShopSettings();
   return false;
 }
 
@@ -182,20 +185,31 @@ async function loadOrdersPage(force = false) {
     }
     // — Orders table
     if (data.orders) {
+      const threshold = parseInt(localStorage.getItem("vk_low_stock") || "3");
       const tbody = data.orders.length ? `
         <div class="orders-scroll">
           <table class="orders-tbl">
-            <thead><tr><th>Date</th><th>Customer</th><th>Ship To</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
-            <tbody>${data.orders.map(o => `
+            <thead><tr><th>Date</th><th>Customer</th><th>Ship To</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>${data.orders.map(o => {
+              const payId = (o.paymentIds||[])[0] || "";
+              const trackingInfo = o.tracking?.number ? `<br><small style="color:var(--gray)">📦 ${escHtml(o.tracking.carrier)} ${escHtml(o.tracking.number)}</small>` : "";
+              let actions = "";
+              if (o.state === "OPEN") {
+                actions = `<button class="order-action-btn order-ship-btn" onclick="openShipModal('${o.id}',${o.version||1})" title="Mark as shipped">🚚 Ship</button>`;
+                actions += ` <button class="order-cancel-btn" onclick="cancelOrder('${o.id}', ${o.version||1}, this)" title="Cancel order">✕ Cancel</button>`;
+              } else if (o.state === "COMPLETED" && payId) {
+                actions = `<button class="order-action-btn order-refund-btn" onclick="refundOrder('${o.id}','${payId}',${o.totalPence||0},this)" title="Refund order">💰 Refund</button>`;
+              }
+              return `
               <tr id="order-row-${o.id}">
                 <td>${new Date(o.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"})}</td>
                 <td><strong>${escHtml(o.customer.name)}</strong>${o.customer.email?`<br><small>${escHtml(o.customer.email)}</small>`:""}</td>
                 <td><small>${escHtml(o.address||"—")}</small></td>
                 <td><small>${o.items.map(i=>`${i.qty}× ${escHtml(i.name)}`).join("<br>")||""}</small></td>
                 <td><strong>£${o.total}</strong></td>
-                <td><span class="order-badge order-${o.state.toLowerCase()}" id="order-badge-${o.id}">${o.state}</span></td>
-                <td>${o.state === "OPEN" ? `<button class="order-cancel-btn" onclick="cancelOrder('${o.id}', ${o.version||1}, this)" title="Cancel order">✕ Cancel</button>` : ""}</td>
-              </tr>`).join("")}
+                <td><span class="order-badge order-${o.state.toLowerCase()}" id="order-badge-${o.id}">${o.state}</span>${trackingInfo}</td>
+                <td id="order-actions-${o.id}">${actions}</td>
+              </tr>`;}).join("")}
             </tbody>
           </table>
         </div>` : `<p style="color:var(--gray);padding:16px 0">No orders yet — they\'ll appear here once customers check out.</p>`;
@@ -204,6 +218,12 @@ async function loadOrdersPage(force = false) {
     }
     // — Inventory
     if (data.inventory !== undefined) {
+      const threshold = parseInt(localStorage.getItem("vk_low_stock") || "3");
+      const lowItems  = data.inventory.filter(i => i.quantity <= threshold);
+      let lowAlert = "";
+      if (lowItems.length) {
+        lowAlert = `<div class="sync-note" style="border-color:#f59e0b;margin-bottom:16px"><i class="fas fa-triangle-exclamation" style="color:#f59e0b"></i><span><strong>⚠️ ${lowItems.length} item${lowItems.length>1?"s":""} running low:</strong> ${lowItems.map(i=>`${escHtml(i.product_name)} (${i.quantity} left)`).join(", ")}</span></div>`;
+      }
       const invHtml = data.inventory.length ? `
         <div class="orders-scroll">
           <table class="orders-tbl">
@@ -221,7 +241,7 @@ async function loadOrdersPage(force = false) {
             </tbody>
           </table>
         </div>` : `<p style="color:var(--gray);font-size:.88rem;line-height:1.8">No stock tracking data found.<br>Enable it in <strong>Square Dashboard → Items → click any product → Stock tab → Track inventory</strong>.</p>`;
-      document.getElementById("inventory-table").innerHTML = invHtml;
+      document.getElementById("inventory-table").innerHTML = lowAlert + invHtml;
       invWrap.style.display = "block";
     }
     _ordersLoaded = true;
@@ -236,7 +256,279 @@ function escHtml(s) {
   return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-async function cancelOrder(orderId, version, btn) {
+async function refundOrder(orderId, paymentId, totalPence, btn) {
+  const amtStr = totalPence ? `£${(totalPence/100).toFixed(2)}` : "full amount";
+  if (!confirm(`Issue a full refund of ${amtStr} for this order? This cannot be undone.`)) return;
+  btn.disabled = true; btn.textContent = "Refunding...";
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal ? "https://shop-sandy-theta.vercel.app/api/refund-order" : "/api/refund-order";
+    const res  = await fetch(API, { method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ orderId, paymentId, amountPence: totalPence || undefined }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed");
+    const actionsEl = document.getElementById("order-actions-" + orderId);
+    if (actionsEl) actionsEl.innerHTML = `<span style="color:var(--success);font-size:.78rem">✅ Refunded £${data.amount}</span>`;
+  } catch (err) {
+    alert("Could not refund: " + err.message);
+    btn.disabled = false; btn.innerHTML = "💰 Refund";
+  }
+}
+
+function openShipModal(orderId, version) {
+  document.getElementById("ship-order-id").value      = orderId;
+  document.getElementById("ship-order-version").value = version;
+  document.getElementById("ship-tracking").value      = "";
+  document.getElementById("ship-modal-status").textContent = "";
+  document.getElementById("ship-submit-btn").disabled = false;
+  document.getElementById("ship-submit-btn").innerHTML = "<i class='fas fa-truck'></i> Mark Shipped";
+  document.getElementById("ship-modal").style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeShipModal() {
+  document.getElementById("ship-modal").style.display = "none";
+  document.body.style.overflow = "";
+}
+async function submitShipOrder() {
+  const orderId  = document.getElementById("ship-order-id").value;
+  const version  = parseInt(document.getElementById("ship-order-version").value) || 1;
+  const carrier  = document.getElementById("ship-carrier").value;
+  const tracking = document.getElementById("ship-tracking").value.trim();
+  const btn      = document.getElementById("ship-submit-btn");
+  const statusEl = document.getElementById("ship-modal-status");
+  btn.disabled = true; btn.textContent = "Saving...";
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal ? "https://shop-sandy-theta.vercel.app/api/ship-order" : "/api/ship-order";
+    const res  = await fetch(API, { method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ orderId, version, carrier, trackingNumber: tracking }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed");
+    // Update row in-place
+    const badge = document.getElementById("order-badge-" + orderId);
+    if (badge) {
+      badge.className = "order-badge order-completed"; badge.textContent = "COMPLETED";
+      if (tracking) badge.insertAdjacentHTML("afterend", `<br><small style="color:var(--gray)">📦 ${escHtml(carrier)} ${escHtml(tracking)}</small>`);
+    }
+    const actionsEl = document.getElementById("order-actions-" + orderId);
+    if (actionsEl) actionsEl.innerHTML = `<span style="color:var(--success);font-size:.78rem">✅ Shipped</span>`;
+    setTimeout(closeShipModal, 800);
+  } catch (err) {
+    statusEl.innerHTML = `<span style="color:var(--danger)">${escHtml(err.message)}</span>`;
+    btn.disabled = false; btn.innerHTML = "<i class='fas fa-truck'></i> Mark Shipped";
+  }
+}
+
+// ── Analytics ──────────────────────────────────────────────
+let _analyticsLoaded = false;
+let _revenueChart = null;
+async function loadAnalyticsPage(force = false) {
+  if (_analyticsLoaded && !force) return;
+  const loadingEl = document.getElementById("analytics-loading");
+  const errEl     = document.getElementById("analytics-error");
+  const statsEl   = document.getElementById("analytics-stats");
+  const chartCard = document.getElementById("revenue-chart-card");
+  const gridEl    = document.getElementById("analytics-grid");
+  loadingEl.style.display = "flex";
+  statsEl.style.display = chartCard.style.display = gridEl.style.display = errEl.style.display = "none";
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal ? "https://shop-sandy-theta.vercel.app/api/orders?type=orders" : "/api/orders?type=orders";
+    const res  = await fetch(API);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "API error");
+
+    const orders = data.orders || [];
+    const stats  = data.stats  || {};
+
+    // — Stats row
+    statsEl.innerHTML = `
+      <div class="stat-card"><i class="fas fa-sterling-sign"></i><div><span>£${stats.revenue||"0.00"}</span><small>Total Revenue</small></div></div>
+      <div class="stat-card"><i class="fas fa-receipt"></i><div><span>${stats.total||0}</span><small>Orders</small></div></div>
+      <div class="stat-card"><i class="fas fa-bag-shopping"></i><div><span>${stats.items_sold||0}</span><small>Items Sold</small></div></div>
+      <div class="stat-card"><i class="fas fa-users"></i><div><span>${new Set(orders.map(o=>o.customer.email||o.customer.name).filter(Boolean)).size}</span><small>Customers</small></div></div>`;
+    statsEl.style.display = "grid";
+
+    // — Revenue chart (last 30 days)
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dayMap = {};
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      dayMap[d.toISOString().slice(0,10)] = 0;
+    }
+    orders.forEach(o => {
+      const day = o.created_at?.slice(0,10);
+      if (day && dayMap[day] !== undefined) dayMap[day] += parseFloat(o.total||0);
+    });
+    const labels = Object.keys(dayMap).map(d => {
+      const [,m,dd] = d.split("-"); return `${dd}/${m}`;
+    });
+    const values = Object.values(dayMap);
+    if (_revenueChart) _revenueChart.destroy();
+    const ctx = document.getElementById("revenue-chart")?.getContext("2d");
+    if (ctx) {
+      _revenueChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{ label: "Revenue (£)", data: values,
+            backgroundColor: "rgba(233,30,140,0.25)",
+            borderColor: "rgba(233,30,140,0.8)",
+            borderWidth: 2, borderRadius: 4
+          }]
+        },
+        options: { responsive:true, maintainAspectRatio:false,
+          plugins: { legend: { display:false } },
+          scales: { x: { ticks:{font:{size:10}} }, y: { beginAtZero:true, ticks:{callback:v=>`£${v}`} } }
+        }
+      });
+    }
+    chartCard.style.display = "block";
+
+    // — Best sellers
+    const itemCounts = {};
+    orders.forEach(o => o.items.forEach(i => {
+      itemCounts[i.name] = (itemCounts[i.name]||0) + parseInt(i.qty||1);
+    }));
+    const topItems = Object.entries(itemCounts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    document.getElementById("best-sellers-list").innerHTML = topItems.length
+      ? topItems.map(([name,qty],i) => `
+          <div class="cat-row">
+            <span><strong>${i+1}.</strong> ${escHtml(name)}</span>
+            <span><strong>${qty}</strong> sold</span>
+          </div>`).join("")
+      : `<p style="color:var(--gray);font-size:.85rem">No sales data yet.</p>`;
+
+    // — Customer list
+    const customers = {};
+    orders.forEach(o => {
+      const key = o.customer.email || o.customer.name || "Unknown";
+      if (!customers[key]) customers[key] = { name: o.customer.name, email: o.customer.email, orders: 0, spent: 0, last: o.created_at };
+      customers[key].orders++;
+      customers[key].spent += parseFloat(o.total||0);
+      if (o.created_at > customers[key].last) customers[key].last = o.created_at;
+    });
+    const custList = Object.values(customers).sort((a,b) => b.spent - a.spent).slice(0,15);
+    document.getElementById("customer-list").innerHTML = custList.length
+      ? custList.map(c => `
+          <div class="cat-row">
+            <div><strong>${escHtml(c.name)}</strong>${c.email?`<br><small>${escHtml(c.email)}</small>`:""}</div>
+            <div style="text-align:right"><strong>£${c.spent.toFixed(2)}</strong><br><small>${c.orders} order${c.orders>1?"s":""}</small></div>
+          </div>`).join("")
+      : `<p style="color:var(--gray);font-size:.85rem">No customers yet.</p>`;
+
+    gridEl.style.display = "grid";
+    _analyticsLoaded = true;
+  } catch (err) {
+    errEl.innerHTML = `<div class="sync-note" style="border-color:var(--danger)"><i class="fas fa-circle-xmark" style="color:var(--danger)"></i><span>${escHtml(err.message)}</span></div>`;
+    errEl.style.display = "block";
+  } finally {
+    loadingEl.style.display = "none";
+  }
+}
+
+// ── Discounts ─────────────────────────────────────────────
+let _discountsLoaded = false;
+function toggleDiscountFields() {
+  const t = document.getElementById("disc-type").value;
+  document.getElementById("disc-pct-wrap").style.display = t === "FIXED_PERCENTAGE" ? "flex" : "none";
+  document.getElementById("disc-amt-wrap").style.display = t === "FIXED_AMOUNT"     ? "flex" : "none";
+}
+async function loadDiscountsPage(force = false) {
+  if (_discountsLoaded && !force) return;
+  const loadEl  = document.getElementById("discounts-loading");
+  const listEl  = document.getElementById("discounts-list-wrap");
+  loadEl.style.display = "flex"; listEl.style.display = "none";
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal ? "https://shop-sandy-theta.vercel.app/api/discounts" : "/api/discounts";
+    const res  = await fetch(API);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    const list = data.discounts || [];
+    document.getElementById("discounts-table").innerHTML = list.length
+      ? `<table class="orders-tbl"><thead><tr><th>Name</th><th>Type</th><th>Value</th><th></th></tr></thead><tbody>
+          ${list.map(d => `<tr>
+            <td><strong>${escHtml(d.name)}</strong></td>
+            <td><small>${d.type === "FIXED_PERCENTAGE" ? "% Off" : "£ Off"}</small></td>
+            <td><strong>${d.percentage ? d.percentage+"%" : d.amount ? "£"+d.amount : "—"}</strong></td>
+            <td><button class="order-cancel-btn" onclick="deleteDiscount('${d.id}',this)">✕ Delete</button></td>
+          </tr>`).join("")}
+        </tbody></table>`
+      : `<p style="color:var(--gray);font-size:.88rem">No discounts yet. Create one above.</p>`;
+    listEl.style.display = "block";
+    _discountsLoaded = true;
+  } catch (err) {
+    document.getElementById("discounts-table").innerHTML = `<p style="color:var(--danger)">${escHtml(err.message)}</p>`;
+    listEl.style.display = "block";
+  } finally { loadEl.style.display = "none"; }
+}
+async function createDiscount() {
+  const name = document.getElementById("disc-name").value.trim();
+  const type = document.getElementById("disc-type").value;
+  const pct  = document.getElementById("disc-pct").value;
+  const amt  = document.getElementById("disc-amt").value;
+  const st   = document.getElementById("disc-status");
+  if (!name) { st.innerHTML = `<span style="color:var(--danger)">Name is required.</span>`; return; }
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal ? "https://shop-sandy-theta.vercel.app/api/discounts" : "/api/discounts";
+    const res  = await fetch(API, { method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ name, type, percentage: pct||undefined, amount: amt||undefined }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    st.innerHTML = `<span style="color:var(--success)">✅ Discount created!</span>`;
+    document.getElementById("disc-name").value = "";
+    loadDiscountsPage(true);
+  } catch (err) { st.innerHTML = `<span style="color:var(--danger)">${escHtml(err.message)}</span>`; }
+}
+async function deleteDiscount(id, btn) {
+  if (!confirm("Delete this discount from Square?")) return;
+  btn.disabled = true; btn.textContent = "Deleting...";
+  try {
+    const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+    const API = isLocal ? `https://shop-sandy-theta.vercel.app/api/discounts?id=${id}` : `/api/discounts?id=${id}`;
+    const res  = await fetch(API, { method:"DELETE" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    btn.closest("tr").remove();
+  } catch (err) { alert("Could not delete: " + err.message); btn.disabled=false; btn.textContent="✕ Delete"; }
+}
+
+// ── Shop Settings ──────────────────────────────────────────
+function loadShopSettings() {
+  const banner = JSON.parse(localStorage.getItem("vk_banner") || "{}");
+  document.getElementById("banner-enabled").checked = !!banner.enabled;
+  document.getElementById("banner-text").value   = banner.text  || "";
+  document.getElementById("banner-color").value  = banner.color || "pink";
+  const notif = JSON.parse(localStorage.getItem("vk_notif") || "{}");
+  document.getElementById("notif-enabled").checked = !!notif.enabled;
+  document.getElementById("notif-email").value = notif.email || "";
+  const threshold = localStorage.getItem("vk_low_stock") || "3";
+  document.getElementById("low-stock-threshold").value = threshold;
+}
+function saveBanner() {
+  const banner = {
+    enabled: document.getElementById("banner-enabled").checked,
+    text:    document.getElementById("banner-text").value.trim(),
+    color:   document.getElementById("banner-color").value
+  };
+  localStorage.setItem("vk_banner", JSON.stringify(banner));
+  document.getElementById("banner-status").innerHTML = `<span style="color:var(--success)">✅ Banner saved! Reload the shop to see it.</span>`;
+}
+function saveNotifSettings() {
+  const notif = {
+    enabled: document.getElementById("notif-enabled").checked,
+    email:   document.getElementById("notif-email").value.trim()
+  };
+  localStorage.setItem("vk_notif", JSON.stringify(notif));
+  document.getElementById("notif-status").innerHTML = `<span style="color:var(--success)">✅ Notification settings saved.</span>`;
+}
+function saveStockThreshold() {
+  const val = document.getElementById("low-stock-threshold").value;
+  localStorage.setItem("vk_low_stock", val || "3");
+  document.getElementById("threshold-status").innerHTML = `<span style="color:var(--success)">✅ Threshold saved.</span>`;
+}
   if (!confirm("Cancel this order on Square? This cannot be undone.")) return;
   btn.disabled = true;
   btn.textContent = "Cancelling...";
