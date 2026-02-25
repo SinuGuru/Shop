@@ -529,6 +529,9 @@ function saveStockThreshold() {
   localStorage.setItem("vk_low_stock", val || "3");
   document.getElementById("threshold-status").innerHTML = `<span style="color:var(--success)">✅ Threshold saved.</span>`;
 }
+
+// ── Cancel Order ──────────────────────────────────────────────
+async function cancelOrder(orderId, version, btn) {
   if (!confirm("Cancel this order on Square? This cannot be undone.")) return;
   btn.disabled = true;
   btn.textContent = "Cancelling...";
