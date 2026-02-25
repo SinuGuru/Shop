@@ -153,7 +153,7 @@ function renderProducts() {
   if (!grid) return;
 
   grid.innerHTML = products.map(p => `
-    <div class="product-card" onclick="goToProduct('${p.url}')">
+    <div class="product-card" onclick="openCheckout(${p.id})">
       <div class="product-img" style="background:${p.bg};">
         ${p.imageUrl
           ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.remove()">`
@@ -166,7 +166,7 @@ function renderProducts() {
         <p>${p.description}</p>
         <div class="product-footer">
           <span class="product-price">${p.price}</span>
-          <button class="product-order-btn" onclick="event.stopPropagation(); goToProduct('${p.url}')">
+          <button class="product-order-btn" onclick="event.stopPropagation(); openCheckout(${p.id})">
             Buy Now
           </button>
         </div>
@@ -177,6 +177,89 @@ function renderProducts() {
 
 function goToProduct(url) {
   window.open(url, "_blank");
+}
+
+// -------------------------------------------------------
+//  CHECKOUT MODAL
+// -------------------------------------------------------
+let checkoutProduct = null;
+
+function openCheckout(productId) {
+  const p = products.find(x => x.id === productId);
+  if (!p) return;
+  checkoutProduct = p;
+
+  // Populate modal
+  const imgEl = document.getElementById("checkout-img");
+  imgEl.style.background = p.bg;
+  imgEl.innerHTML = p.imageUrl
+    ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.style.fontSize='3rem';this.outerHTML='${p.emoji}'">`
+    : `<span style="font-size:3rem">${p.emoji}</span>`;
+
+  document.getElementById("checkout-tag").textContent = p.tag;
+  document.getElementById("checkout-name").textContent = p.name;
+  document.getElementById("checkout-desc").textContent = p.description;
+
+  // Reset button state
+  document.getElementById("checkout-btn-text").style.display = "";
+  document.getElementById("checkout-btn-spinner").style.display = "none";
+  document.getElementById("checkout-pay-btn").disabled = false;
+
+  // Show modal
+  document.getElementById("checkout-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeCheckout(e) {
+  if (e.target === document.getElementById("checkout-overlay")) closeCheckoutDirect();
+}
+
+function closeCheckoutDirect() {
+  document.getElementById("checkout-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+async function proceedToCheckout() {
+  if (!checkoutProduct) return;
+
+  const btn = document.getElementById("checkout-pay-btn");
+  document.getElementById("checkout-btn-text").style.display = "none";
+  document.getElementById("checkout-btn-spinner").style.display = "";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productName: checkoutProduct.name, price: 600 })
+    });
+    const data = await res.json();
+
+    if (data.url) {
+      closeCheckoutDirect();
+      window.open(data.url, "_blank");
+    } else {
+      alert("Sorry, checkout failed. Please try again or visit sinuguru.square.site");
+      btn.disabled = false;
+      document.getElementById("checkout-btn-text").style.display = "";
+      document.getElementById("checkout-btn-spinner").style.display = "none";
+    }
+  } catch (err) {
+    console.error(err);
+    // Fallback to Square site
+    closeCheckoutDirect();
+    window.open(checkoutProduct.url, "_blank");
+  }
+}
+
+// Show success toast if redirected back after payment
+if (location.search.includes("order=success")) {
+  const toast = document.getElementById("success-toast");
+  if (toast) {
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 5000);
+    history.replaceState({}, "", location.pathname);
+  }
 }
 
 // -------------------------------------------------------

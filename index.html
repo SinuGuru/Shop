@@ -242,6 +242,36 @@
     </div>
   </div>
 
+  <!-- CHECKOUT MODAL -->
+  <div class="checkout-overlay" id="checkout-overlay" onclick="closeCheckout(event)">
+    <div class="checkout-modal" id="checkout-modal">
+      <button class="checkout-close" onclick="closeCheckoutDirect()">✕</button>
+      <div class="checkout-product-img" id="checkout-img"></div>
+      <div class="checkout-body">
+        <span class="checkout-tag" id="checkout-tag"></span>
+        <h3 id="checkout-name"></h3>
+        <div class="checkout-price">£6.00</div>
+        <p class="checkout-desc" id="checkout-desc"></p>
+        <div class="checkout-badges">
+          <span>🍎 Apple Pay</span>
+          <span>🤖 Google Pay</span>
+          <span>💳 Clearpay</span>
+          <span>🔒 Secure</span>
+        </div>
+        <button class="checkout-pay-btn" id="checkout-pay-btn" onclick="proceedToCheckout()">
+          <span id="checkout-btn-text">Pay Securely — £6.00 →</span>
+          <span id="checkout-btn-spinner" style="display:none">⏳ Creating checkout...</span>
+        </button>
+        <p class="checkout-note">You'll be taken to a secure Square payment page. After paying you'll return here.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS TOAST -->
+  <div class="success-toast" id="success-toast">
+    🎉 Order placed! Thank you — we'll be in touch soon!
+  </div>
+
   <script src="products.js"></script>
   <script src="app.js"></script>
 </body>
