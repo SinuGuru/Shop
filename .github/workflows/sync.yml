@@ -36,11 +36,30 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Check secrets are available
+        run: |
+          if [ -z "$SQUARE_TOKEN" ]; then
+            echo "❌ SQUARE_TOKEN secret is missing or empty!"
+            echo "Go to: Settings → Secrets and variables → Actions → New repository secret"
+            echo "Name: SQUARE_TOKEN  Value: your Square production token"
+            exit 1
+          else
+            echo "✅ SQUARE_TOKEN is set (${#SQUARE_TOKEN} chars)"
+          fi
+          if [ -z "$OPENAI_KEY" ]; then
+            echo "⚠️  OPENAI_KEY not set — will use fallback descriptions"
+          else
+            echo "✅ OPENAI_KEY is set"
+          fi
+        env:
+          SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+
       - name: Run product sync
         env:
           SQUARE_TOKEN: ${{ secrets.SQUARE_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
-        run: node sync-products.js --square=$SQUARE_TOKEN --key=$OPENAI_API_KEY
+        run: node sync-products.js
 
       - name: Fix product URLs from sitemap
         run: node fix-urls.js

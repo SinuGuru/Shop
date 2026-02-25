@@ -46,8 +46,8 @@ async function main() {
 
   const sitemapUrls = await fetchSitemapUrls();
   if (!sitemapUrls.length) {
-    console.error("❌ No URLs found in sitemap. Is the Square shop live?");
-    process.exit(1);
+    console.warn("⚠️  No URLs found in sitemap — skipping URL update.");
+    process.exit(0);
   }
 
   // Load existing products.js
