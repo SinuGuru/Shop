@@ -6,6 +6,7 @@
 let adminProducts = [];
 let editingIndex = -1;  // -1 = new product
 let savedApiKey    = localStorage.getItem("vk_openai_key")  || "";
+let savedRunwayKey = localStorage.getItem("vk_runway_key")  || "";
 let savedSquareKey = localStorage.getItem("vk_square_key") || "";
 
 // Use /api/gpt proxy when deployed on Vercel (keys stay server-side)
@@ -953,11 +954,14 @@ async function generateStoryIdeas() {
 // ── Settings page ─────────────────────────────────────────────────
 function loadSettingsPage() {
   const oEl = document.getElementById("settings-openai");
+  const rEl = document.getElementById("settings-runway");
   const sEl = document.getElementById("settings-square");
   const oSt = document.getElementById("openai-key-status");
+  const rSt = document.getElementById("runway-key-status");
   const sSt = document.getElementById("square-key-status");
   const cmd = document.getElementById("cmd-with-tokens");
   if (oEl && savedApiKey)    { oEl.value = savedApiKey;    oSt.textContent = "✅ OpenAI key saved";  oSt.style.color = "var(--success)"; }
+  if (rEl && savedRunwayKey) { rEl.value = savedRunwayKey; rSt.textContent = "✅ Runway key saved";  rSt.style.color = "var(--success)"; }
   if (sEl && savedSquareKey) { sEl.value = savedSquareKey; sSt.textContent = "✅ Square token saved"; sSt.style.color = "var(--success)"; }
   if (cmd) {
     if (savedSquareKey && savedApiKey) {
@@ -972,8 +976,10 @@ function loadSettingsPage() {
 
 function saveSettingsKeys() {
   const oVal = document.getElementById("settings-openai").value.trim();
+  const rVal = document.getElementById("settings-runway")?.value.trim() || "";
   const sVal = document.getElementById("settings-square").value.trim();
   const oSt  = document.getElementById("openai-key-status");
+  const rSt  = document.getElementById("runway-key-status");
   const sSt  = document.getElementById("square-key-status");
   let saved  = 0;
 
@@ -989,6 +995,12 @@ function saveSettingsKeys() {
       showApiStatus("✅ API key loaded.", "var(--success)");
       saved++;
     }
+  }
+  if (rVal) {
+    savedRunwayKey = rVal;
+    localStorage.setItem("vk_runway_key", rVal);
+    if (rSt) { rSt.textContent = "✅ Saved!"; rSt.style.color = "var(--success)"; }
+    saved++;
   }
   if (sVal) {
     if (!sVal.startsWith("EAAA")) {

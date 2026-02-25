@@ -461,12 +461,25 @@
         <!-- OpenAI -->
         <div class="dash-card">
           <h3 style="margin-bottom:4px"><i class="fab fa-openai" style="color:var(--pink)"></i> OpenAI API Key</h3>
-          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Used for AI caption, reel, hashtag, targeting generators, and product description writing. Get yours at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>.</p>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Used for AI captions, banner text, product descriptions &amp; more. Get yours at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>.</p>
           <div style="display:flex;gap:10px;align-items:center">
             <input type="password" id="settings-openai" placeholder="sk-proj-..." style="flex:1;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
             <button class="btn-primary" onclick="saveSettingsKeys()"><i class="fas fa-save"></i> Save</button>
           </div>
           <div id="openai-key-status" style="font-size:.8rem;margin-top:8px"></div>
+        </div>
+
+        <!-- Runway ML -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-film" style="color:var(--pink)"></i> Runway ML API Key
+            <span style="font-size:.72rem;font-weight:500;background:linear-gradient(90deg,#f48fb1,#ce93d8);color:#fff;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle">AI Creative Studio</span>
+          </h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Used to generate product images &amp; Instagram/WhatsApp videos with AI. Get your key at <a href="https://dev.runwayml.com" target="_blank">dev.runwayml.com</a> &rarr; Log in &rarr; Account &rarr; API Keys.</p>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="password" id="settings-runway" placeholder="key_..." style="flex:1;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" onclick="saveSettingsKeys()"><i class="fas fa-save"></i> Save</button>
+          </div>
+          <div id="runway-key-status" style="font-size:.8rem;margin-top:8px"></div>
         </div>
 
         <!-- Square -->
