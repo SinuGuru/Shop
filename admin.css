@@ -608,3 +608,71 @@ html.theme-ocean {
   transition: all .15s; text-align: left; line-height: 1.4;
 }
 .banner-suggestion:hover { background: var(--primary); color: #fff; }
+
+/* ── AI Creative Studio ───────────────────────────────────────── */
+.creative-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px;
+}
+.creative-tab {
+  padding: 8px 20px; border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--card); color: var(--text-muted);
+  font-size: .85rem; font-weight: 600; font-family: 'Poppins', sans-serif;
+  cursor: pointer; transition: all .15s;
+}
+.creative-tab.active {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+}
+.creative-tab:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+.cs-two-col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: flex-start;
+}
+@media (max-width: 900px) { .cs-two-col { grid-template-columns: 1fr; } }
+
+.cs-controls { padding: 20px; }
+
+.cs-templates {
+  display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 4px;
+}
+.cs-tpl {
+  padding: 5px 12px; border-radius: 16px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-size: .75rem; font-weight: 500; font-family: 'Poppins', sans-serif;
+  cursor: pointer; transition: all .15s; color: var(--text);
+}
+.cs-tpl:hover { border-color: var(--primary); color: var(--primary); }
+.cs-tpl.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.cs-result {
+  position: sticky; top: 20px;
+}
+.cs-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px;
+  min-height: 320px; border-radius: 12px;
+  border: 2px dashed var(--border);
+  background: var(--bg); color: var(--text-muted);
+  font-size: .88rem;
+}
+.cs-placeholder i { font-size: 2.5rem; opacity: .3; }
+
+.cs-result-actions {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px;
+}
+.cs-result-actions .btn-primary,
+.cs-result-actions .btn-outline {
+  flex: 1; min-width: 120px; text-align: center;
+  text-decoration: none; display: inline-flex;
+  align-items: center; justify-content: center; gap: 7px;
+}
+
+.cs-progress-track {
+  width: 100%; height: 6px; border-radius: 6px;
+  background: var(--border); overflow: hidden;
+}
+.cs-progress-fill {
+  height: 100%; border-radius: 6px;
+  background: linear-gradient(90deg, var(--primary), #ce93d8);
+  transition: width .4s ease;
+}

@@ -130,6 +130,7 @@ function switchPage(page, el) {
   if (page === "analytics")     loadAnalyticsPage();
   if (page === "discounts")     loadDiscountsPage();
   if (page === "shop-settings") loadShopSettings();
+  if (page === "creative")      loadCreativeStudio();
   return false;
 }
 
@@ -1327,3 +1328,199 @@ document.addEventListener("click", e => {
     panel.classList.remove("open");
   }
 });
+
+// ── AI Creative Studio ─────────────────────────────────────────
+
+function proxyBase() {
+  const isLocal = ["localhost","127.0.0.1"].includes(location.hostname) || location.hostname.includes("github.io");
+  return isLocal ? "https://shop-sandy-theta.vercel.app/api" : "/api";
+}
+
+function loadCreativeStudio() {
+  const key = localStorage.getItem("vk_runway_key") || "";
+  const warn = document.getElementById("creative-no-key");
+  if (warn) warn.style.display = key ? "none" : "flex";
+}
+
+function switchCreativeTab(tab) {
+  document.getElementById("creative-images").style.display = tab === "images" ? "block" : "none";
+  document.getElementById("creative-videos").style.display = tab === "videos" ? "block" : "none";
+  document.getElementById("tab-images").classList.toggle("active", tab === "images");
+  document.getElementById("tab-videos").classList.toggle("active", tab === "videos");
+}
+
+function useImgTemplate(btn) {
+  document.getElementById("img-prompt").value = btn.dataset.prompt;
+  document.querySelectorAll("#creative-images .cs-tpl").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+function useVidTemplate(btn) {
+  document.getElementById("vid-prompt").value = btn.dataset.prompt;
+  document.querySelectorAll("#creative-videos .cs-tpl").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+async function enhanceImgPrompt() {
+  const ta  = document.getElementById("img-prompt");
+  const btn = document.getElementById("img-enhance-btn");
+  const cur = ta.value.trim();
+  if (!cur) { ta.placeholder = "Type a basic prompt first, then click Enhance."; return; }
+  btn.disabled = true; btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Enhancing...";
+  const enhanced = await callGPT(
+    `Enhance this image generation prompt for a UK handmade jewellery brand called VeronikaK. ` +
+    `Make it more detailed, cinematic, and professional for Runway Gen-4 AI. Keep it under 60 words. ` +
+    `Original prompt: "${cur}". Return ONLY the enhanced prompt, no explanation.`
+  );
+  if (enhanced) ta.value = enhanced;
+  btn.disabled = false; btn.innerHTML = "<i class='fas fa-wand-magic-sparkles'></i> AI Enhance Prompt";
+}
+
+async function enhanceVidPrompt() {
+  const ta  = document.getElementById("vid-prompt");
+  const btn = document.getElementById("vid-enhance-btn");
+  const cur = ta.value.trim();
+  if (!cur) { ta.placeholder = "Type a basic prompt first, then click Enhance."; return; }
+  btn.disabled = true; btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Enhancing...";
+  const enhanced = await callGPT(
+    `Enhance this video generation prompt for a UK handmade jewellery brand called VeronikaK, for Runway Gen-4 Turbo AI. ` +
+    `Add cinematic camera movement, lighting description, and mood. Keep it under 70 words. ` +
+    `Original prompt: "${cur}". Return ONLY the enhanced prompt, no explanation.`
+  );
+  if (enhanced) ta.value = enhanced;
+  btn.disabled = false; btn.innerHTML = "<i class='fas fa-wand-magic-sparkles'></i> AI Enhance Prompt";
+}
+
+async function generateImage() {
+  const runwayKey = localStorage.getItem("vk_runway_key") || "";
+  if (!runwayKey) { alert("Add your Runway API key in API Keys settings first."); return; }
+  const prompt = document.getElementById("img-prompt").value.trim();
+  if (!prompt)   { document.getElementById("img-status").innerHTML = `<span style="color:var(--danger)">Please enter a prompt.</span>`; return; }
+  const ratio   = document.getElementById("img-ratio").value;
+  const btn     = document.getElementById("img-gen-btn");
+  const statusEl = document.getElementById("img-status");
+  const resultEl = document.getElementById("img-result");
+  const phEl     = document.getElementById("img-placeholder");
+
+  btn.disabled = true; btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Generating...";
+  statusEl.innerHTML = `<span style="color:var(--gray)"><i class="fas fa-spinner fa-spin"></i> Sending to Runway… (~15 seconds)</span>`;
+  resultEl.style.display = "none"; phEl.style.display = "flex";
+
+  try {
+    const res  = await fetch(`${proxyBase()}/creative-image`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, ratio, runwayKey })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Generation failed");
+
+    const url = data.imageUrl;
+    document.getElementById("img-output").src     = url;
+    document.getElementById("img-download").href  = url;
+    phEl.style.display = "none"; resultEl.style.display = "block";
+    statusEl.innerHTML = `<span style="color:var(--success)">✅ Image ready! Right-click or use Download.</span>`;
+    // Store for banner use
+    window._lastGeneratedImageUrl = url;
+  } catch(err) {
+    statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${escHtml(err.message)}</span>`;
+  }
+  btn.disabled = false; btn.innerHTML = "<i class='fas fa-sparkles'></i> Generate Image";
+}
+
+function copyImgUrl() {
+  const url = document.getElementById("img-output").src;
+  if (url) { navigator.clipboard.writeText(url); showToast("Image URL copied!"); }
+}
+
+function useAsShopBanner() {
+  const url = window._lastGeneratedImageUrl || document.getElementById("img-output")?.src;
+  if (!url) return;
+  const banner = JSON.parse(localStorage.getItem("vk_banner") || "{}");
+  banner.bgImage = url;
+  localStorage.setItem("vk_banner", JSON.stringify(banner));
+  showToast("✅ Image saved as banner background! Go to Shop Settings to publish.");
+}
+
+let _vidPollInterval = null;
+async function generateVideo() {
+  const runwayKey = localStorage.getItem("vk_runway_key") || "";
+  if (!runwayKey) { alert("Add your Runway API key in API Keys settings first."); return; }
+  const prompt   = document.getElementById("vid-prompt").value.trim();
+  if (!prompt)   { document.getElementById("vid-status").innerHTML = `<span style="color:var(--danger)">Please enter a prompt.</span>`; return; }
+  const ratio    = document.getElementById("vid-ratio").value;
+  const duration = document.getElementById("vid-duration").value;
+  const btn      = document.getElementById("vid-gen-btn");
+  const statusEl = document.getElementById("vid-status");
+  const progWrap = document.getElementById("vid-progress-wrap");
+  const progBar  = document.getElementById("vid-progress-bar");
+  const progLbl  = document.getElementById("vid-progress-label");
+  const resultEl = document.getElementById("vid-result");
+  const phEl     = document.getElementById("vid-placeholder");
+
+  if (_vidPollInterval) clearInterval(_vidPollInterval);
+  btn.disabled = true; btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Starting...";
+  statusEl.innerHTML = `<span style="color:var(--gray)"><i class="fas fa-spinner fa-spin"></i> Submitting to Runway…</span>`;
+  progWrap.style.display = "block"; progBar.style.width = "5%"; progLbl.textContent = "Queued…";
+  resultEl.style.display = "none"; phEl.style.display = "flex";
+
+  try {
+    const res  = await fetch(`${proxyBase()}/creative-video`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, ratio, duration, runwayKey })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to start video");
+
+    const taskId = data.taskId;
+    statusEl.innerHTML = `<span style="color:var(--gray)">Generating… this takes 1–3 minutes.</span>`;
+    btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Generating...";
+
+    let fakePct = 5;
+    _vidPollInterval = setInterval(async () => {
+      try {
+        const pr = await fetch(`${proxyBase()}/creative-task?taskId=${taskId}&runwayKey=${encodeURIComponent(runwayKey)}`);
+        const pd = await pr.json();
+
+        if (pd.progress) {
+          fakePct = Math.round(pd.progress * 100);
+        } else {
+          fakePct = Math.min(fakePct + 3, 90);
+        }
+        progBar.style.width = fakePct + "%";
+        progLbl.textContent = pd.status === "RUNNING" ? `Processing… ${fakePct}%` : pd.status;
+
+        if (pd.status === "SUCCEEDED") {
+          clearInterval(_vidPollInterval);
+          const videoUrl = pd.output?.[0];
+          progBar.style.width = "100%"; progLbl.textContent = "Done!";
+          document.getElementById("vid-output").src    = videoUrl;
+          document.getElementById("vid-download").href = videoUrl;
+          phEl.style.display = "none"; resultEl.style.display = "block";
+          statusEl.innerHTML = `<span style="color:var(--success)">✅ Video ready! Download to share on Instagram or WhatsApp.</span>`;
+          btn.disabled = false; btn.innerHTML = "<i class='fas fa-circle-play'></i> Generate Video";
+        } else if (pd.status === "FAILED") {
+          clearInterval(_vidPollInterval);
+          throw new Error(pd.failure || "Video generation failed");
+        }
+      } catch(pollErr) {
+        if (pollErr.message.includes("failed") || pollErr.message.includes("Failed")) {
+          clearInterval(_vidPollInterval);
+          statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${escHtml(pollErr.message)}</span>`;
+          progWrap.style.display = "none";
+          btn.disabled = false; btn.innerHTML = "<i class='fas fa-circle-play'></i> Generate Video";
+        }
+      }
+    }, 4000);
+
+  } catch(err) {
+    statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${escHtml(err.message)}</span>`;
+    progWrap.style.display = "none";
+    btn.disabled = false; btn.innerHTML = "<i class='fas fa-circle-play'></i> Generate Video";
+  }
+}
+
+function copyVidUrl() {
+  const url = document.getElementById("vid-output")?.src;
+  if (url) { navigator.clipboard.writeText(url); showToast("Video URL copied!"); }
+}
