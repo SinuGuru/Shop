@@ -20,9 +20,19 @@
         document.documentElement.style.overflow = "";
       });
     }
-    function checkPassword() {
-      const val = document.getElementById("pw-input").value;
-      if (val === "veronika") {
+    // SHA-256 helper — available globally for admin.js too
+    async function hashStr(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+    }
+    async function checkPassword() {
+      const val = document.getElementById("pw-input").value.trim();
+      if (!val) return;
+      const stored  = localStorage.getItem("vk_admin_pw_hash");
+      const entered = await hashStr(val);
+      // If no custom hash saved, fall back to default password
+      const valid   = stored ? entered === stored : entered === await hashStr("veronika");
+      if (valid) {
         sessionStorage.setItem("vk_admin_auth", "1");
         document.getElementById("pw-gate").style.display = "none";
         document.getElementById("admin-app").style.display = "flex";
@@ -404,9 +414,22 @@
   <!-- ── SETTINGS PAGE ────────────────────────────────────────────────── -->
     <div id="page-settings" class="page">
       <div class="page-header">
-        <h1><i class="fas fa-key" style="color:var(--pink)"></i> API Keys</h1>
+        <h1><i class="fas fa-key" style="color:var(--pink)"></i> API Keys &amp; Security</h1>
       </div>
       <div style="max-width:580px;display:flex;flex-direction:column;gap:20px">
+
+        <!-- Change Password -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-lock" style="color:var(--pink)"></i> Admin Password</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Password is stored as a SHA-256 hash in your browser — never as plain text. Choose something you won't forget; there is no recovery option.</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <input type="password" id="pw-current" placeholder="Current password" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <input type="password" id="pw-new"     placeholder="New password (min 6 chars)" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <input type="password" id="pw-confirm" placeholder="Confirm new password" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" style="align-self:flex-start" onclick="changeAdminPassword()"><i class="fas fa-lock"></i> Change Password</button>
+          </div>
+          <div id="pw-change-status" style="font-size:.82rem;margin-top:10px"></div>
+        </div>
 
         <!-- OpenAI -->
         <div class="dash-card">

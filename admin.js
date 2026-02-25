@@ -35,6 +35,33 @@ function initAdmin() {
   applyLayout(localStorage.getItem("vk_admin_layout") || "sidebar");
 }
 
+// ── Password Change ─────────────────────────────────────────────
+async function changeAdminPassword() {
+  const current  = document.getElementById("pw-current").value;
+  const newPw    = document.getElementById("pw-new").value;
+  const confirm  = document.getElementById("pw-confirm").value;
+  const statusEl = document.getElementById("pw-change-status");
+  function setStatus(msg, color) { statusEl.innerHTML = `<span style="color:${color}">${msg}</span>`; }
+
+  if (!current || !newPw || !confirm) return setStatus("Please fill in all three fields.", "var(--danger)");
+  if (newPw !== confirm)             return setStatus("New passwords don't match.", "var(--danger)");
+  if (newPw.length < 6)              return setStatus("Password must be at least 6 characters.", "var(--danger)");
+
+  const stored   = localStorage.getItem("vk_admin_pw_hash");
+  const enteredH = await hashStr(current);
+  const valid    = stored ? enteredH === stored : enteredH === await hashStr("veronika");
+  if (!valid) {
+    setStatus("Current password is incorrect.", "var(--danger)");
+    document.getElementById("pw-current").value = "";
+    return;
+  }
+  localStorage.setItem("vk_admin_pw_hash", await hashStr(newPw));
+  document.getElementById("pw-current").value = "";
+  document.getElementById("pw-new").value     = "";
+  document.getElementById("pw-confirm").value = "";
+  setStatus("✅ Password changed! Use it next time you log in.", "var(--success)");
+}
+
 // ── Page Navigation ────────────────────────────────────────────
 function switchPage(page, el) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
