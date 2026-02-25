@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>VeronikaK – Handmade Jewellery</title>
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    // Sync colour theme from admin skin preference (runs before paint to avoid flash)
+    (function(){
+      const s = localStorage.getItem("vk_admin_skin");
+      if (s && s !== "dark") document.documentElement.classList.add("theme-" + s);
+    })();
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>

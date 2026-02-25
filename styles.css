@@ -24,6 +24,45 @@ img { max-width: 100%; }
   --shadow-lg: 0 12px 40px rgba(233,30,140,0.18);
 }
 
+/* ── SHOP THEMES (synced from admin skin choice) ───────────── */
+/* theme-light: soft neutrals, keep pink accent */
+html.theme-light {
+  --pink:       #e91e8c;
+  --pink-light: #fce4f3;
+  --pink-soft:  #fff8fc;
+  --shadow:     0 4px 24px rgba(233,30,140,0.08);
+  --shadow-lg:  0 12px 40px rgba(233,30,140,0.13);
+}
+html.theme-light body    { background: #f5f0fb; }
+html.theme-light .navbar { background: rgba(255,255,255,.97) !important; }
+
+/* theme-rose: deeper rose/berry */
+html.theme-rose {
+  --pink:       #b5006e;
+  --pink-light: #f9d0e8;
+  --pink-soft:  #ffedf7;
+  --purple:     #6b1246;
+  --shadow:     0 4px 24px rgba(181,0,110,0.13);
+  --shadow-lg:  0 12px 40px rgba(181,0,110,0.20);
+}
+html.theme-rose .btn-primary,
+html.theme-rose .btn-secondary { background: linear-gradient(135deg, #b5006e, #6b1246); }
+
+/* theme-ocean: blue accent */
+html.theme-ocean {
+  --pink:       #1976d2;
+  --pink-light: #e3f0fb;
+  --pink-soft:  #f0f7ff;
+  --purple:     #0d47a1;
+  --shadow:     0 4px 24px rgba(25,118,210,0.12);
+  --shadow-lg:  0 12px 40px rgba(25,118,210,0.18);
+}
+html.theme-ocean .btn-primary  { background: linear-gradient(135deg, #1976d2, #0d47a1); }
+html.theme-ocean .product-tag  { background: #e3f0fb; color: #1565c0; }
+html.theme-ocean .navbar       { background: rgba(255,255,255,.97) !important; }
+html.theme-ocean .cart-badge,
+html.theme-ocean .cart-checkout-btn { background: #1976d2; }
+
 /* ========================
    BUTTONS
 ======================== */
