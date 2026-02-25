@@ -1,0 +1,17 @@
+{
+  "name": "VeronikaK – Handmade Jewellery",
+  "short_name": "VeronikaK",
+  "start_url": "/Shop/",
+  "scope": "/Shop/",
+  "display": "standalone",
+  "background_color": "#fff5f7",
+  "theme_color": "#e91e8c",
+  "description": "Handmade bracelets, earrings & kids jewellery — all just £6.",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "lang": "en-GB",
+  "screenshots": []
+}

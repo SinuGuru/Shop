@@ -618,6 +618,40 @@
           <div id="square-key-status" style="font-size:.8rem;margin-top:8px"></div>
         </div>
 
+        <!-- GA4 -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-chart-bar" style="color:var(--pink)"></i> Google Analytics 4</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Tracks visitor behaviour on your shop. Get your Measurement ID from <a href="https://analytics.google.com" target="_blank">analytics.google.com</a> → Admin → Data Streams.</p>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="text" id="settings-ga4" placeholder="G-XXXXXXXXXX" style="flex:1;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" onclick="saveSettingsKeys()"><i class="fas fa-save"></i> Save</button>
+          </div>
+          <div id="ga4-status" style="font-size:.8rem;margin-top:8px"></div>
+        </div>
+
+        <!-- Meta Pixel -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fab fa-facebook" style="color:var(--pink)"></i> Facebook / Meta Pixel</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Tracks conversions from Facebook ads. Get your Pixel ID from <a href="https://business.facebook.com/events_manager" target="_blank">Meta Events Manager</a>.</p>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="text" id="settings-fbpixel" placeholder="1234567890123456" style="flex:1;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" onclick="saveSettingsKeys()"><i class="fas fa-save"></i> Save</button>
+          </div>
+          <div id="fbpixel-status" style="font-size:.8rem;margin-top:8px"></div>
+        </div>
+
+        <!-- Cloudinary -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-cloud-upload-alt" style="color:var(--pink)"></i> Cloudinary Image Hosting</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Used to upload product images directly from the admin panel. Free at <a href="https://cloudinary.com" target="_blank">cloudinary.com</a> → sign up → Settings → Upload → create an <strong>unsigned preset</strong>.</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <input type="text" id="settings-cloudinary" placeholder="Your Cloudinary cloud name" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <input type="text" id="settings-cloudinary-preset" placeholder="Unsigned upload preset name (e.g. veronikak)" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
+            <button class="btn-primary" style="align-self:flex-start" onclick="saveSettingsKeys()"><i class="fas fa-save"></i> Save</button>
+          </div>
+          <div id="cloudinary-status" style="font-size:.8rem;margin-top:8px"></div>
+        </div>
+
         <!-- Usage hint -->
         <div class="sync-note">
           <i class="fas fa-info-circle"></i>
@@ -641,7 +675,10 @@
     <div id="page-orders" class="page">
       <div class="page-header">
         <h1>Orders &amp; Stock</h1>
-        <button class="btn-outline" onclick="loadOrdersPage(true)"><i class="fas fa-rotate"></i> Refresh</button>
+        <div class="header-actions">
+          <button class="btn-outline" onclick="exportOrdersCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+          <button class="btn-outline" onclick="loadOrdersPage(true)"><i class="fas fa-rotate"></i> Refresh</button>
+        </div>
       </div>
       <div id="orders-loading" class="orders-loading">
         <i class="fas fa-spinner fa-spin"></i> Loading from Square...
@@ -779,6 +816,24 @@
           </div>
         </div>
 
+        <!-- Scheduled Banner -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-calendar-days" style="color:var(--pink)"></i> Banner Schedule <small style="font-size:.75rem;font-weight:400;color:var(--gray)">(optional)</small></h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Set a date range for the banner to automatically go live and expire. Leave blank to show/hide manually.</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Go live from</label>
+              <input type="datetime-local" id="banner-start-date"/>
+            </div>
+            <div class="form-group">
+              <label>Expire on</label>
+              <input type="datetime-local" id="banner-end-date"/>
+            </div>
+          </div>
+          <button class="btn-primary" style="align-self:flex-start" onclick="saveBannerSchedule()"><i class="fas fa-calendar-check"></i> Save Schedule</button>
+          <div id="banner-schedule-status" style="font-size:.82rem;margin-top:8px"></div>
+        </div>
+
         <!-- Email Notifications -->
         <div class="dash-card">
           <h3 style="margin-bottom:4px"><i class="fas fa-bell" style="color:var(--pink)"></i> New Order Email Alerts</h3>
@@ -797,7 +852,23 @@
           </div>
         </div>
 
-        <!-- Low Stock Threshold -->
+        <!-- Push Notifications -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fas fa-bell" style="color:var(--pink)"></i> Order Push Notifications</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Get a desktop notification whenever a new order arrives. Admin panel checks for new orders every 5 minutes while open.</p>
+          <button class="btn-primary" id="push-notif-btn" onclick="enablePushNotifications()"><i class="fas fa-bell"></i> Enable Notifications</button>
+          <div id="push-notif-status" style="font-size:.82rem;margin-top:8px"></div>
+        </div>
+
+        <!-- Instagram Posts -->
+        <div class="dash-card">
+          <h3 style="margin-bottom:4px"><i class="fab fa-instagram" style="color:var(--pink)"></i> Instagram Feed on Shop</h3>
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Add up to 9 posts to show an Instagram feed section on your shop homepage. Enter IG post URL + optional custom thumbnail URL (use Cloudinary upload above).</p>
+          <div id="insta-posts-list" style="display:flex;flex-direction:column;gap:10px"></div>
+          <button class="btn-outline" style="margin-top:12px" onclick="addInstaPostRow()"><i class="fas fa-plus"></i> Add Post</button>
+          <button class="btn-primary" style="margin-top:10px" onclick="saveInstagramPosts()"><i class="fas fa-save"></i> Save Feed</button>
+          <div id="insta-status" style="font-size:.82rem;margin-top:8px"></div>
+        </div>
         <div class="dash-card">
           <h3 style="margin-bottom:4px"><i class="fas fa-triangle-exclamation" style="color:#f59e0b"></i> Low Stock Threshold</h3>
           <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Products with stock at or below this number show a warning in the Orders page.</p>
@@ -889,6 +960,17 @@
       <div class="form-group">
         <label>Image URL <small>(leave blank to use local images/)</small></label>
         <input type="text" id="edit-img" placeholder="images/product-01.jpeg"/>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+          <button class="btn-outline" style="font-size:.8rem" onclick="selectProductImage()"><i class="fas fa-upload"></i> Upload Image</button>
+          <span id="img-upload-status" style="font-size:.8rem"></span>
+        </div>
+        <img id="img-upload-thumb" src="" style="display:none;max-width:120px;border-radius:8px;margin-top:8px" alt="Preview"/>
+      </div>
+      <!-- SEO SECTION -->
+      <div class="form-group seo-section">
+        <label><i class="fas fa-magnifying-glass" style="color:var(--pink)"></i> SEO Override <small style="color:var(--gray)">(optional)</small></label>
+        <input type="text" id="edit-seo-title" placeholder="SEO page title (leave blank to use product name)"/>
+        <textarea id="edit-seo-desc" rows="2" placeholder="Meta description for search engines..." style="margin-top:8px"></textarea>
       </div>
     </div>
     <div class="modal-footer">

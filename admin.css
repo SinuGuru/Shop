@@ -676,3 +676,50 @@ html.theme-ocean {
   background: linear-gradient(90deg, var(--primary), #ce93d8);
   transition: width .4s ease;
 }
+
+/* ======================================================
+   SEO SECTION — product edit modal
+====================================================== */
+.seo-section {
+  margin-top: 8px; padding: 14px; border-radius: 10px;
+  border: 1.5px dashed var(--border);
+  background: var(--bg);
+}
+.seo-section label { font-size: .82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: block; }
+.seo-section input,
+.seo-section textarea {
+  width: 100%; padding: 8px 12px;
+  border-radius: 8px; border: 1.5px solid var(--border);
+  font-size: .83rem; font-family: 'Poppins', sans-serif;
+  background: var(--surface); color: var(--text); outline: none;
+  box-sizing: border-box;
+}
+.seo-section input:focus,
+.seo-section textarea:focus { border-color: var(--primary); }
+
+/* ======================================================
+   IMAGE UPLOAD in product modal
+====================================================== */
+#img-upload-thumb {
+  max-width: 100px; max-height: 100px; border-radius: 8px;
+  object-fit: cover; border: 2px solid var(--border);
+}
+
+/* ======================================================
+   INSTAGRAM POSTS manager
+====================================================== */
+.insta-post-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 8px; align-items: center;
+}
+.insta-post-row input {
+  padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border);
+  font-size: .8rem; font-family: 'Poppins', sans-serif;
+  background: var(--surface); color: var(--text); outline: none;
+}
+.insta-post-row input:focus { border-color: var(--primary); }
+@media (max-width: 700px) {
+  .insta-post-row { grid-template-columns: 1fr auto; }
+  .insta-post-row .insta-img,
+  .insta-post-row .insta-cap { display: none; }
+}

@@ -152,33 +152,49 @@ function renderProducts() {
   const grid = document.getElementById("product-grid");
   if (!grid) return;
 
-  grid.innerHTML = products.map(p => `
-    <div class="product-card" onclick="openCheckout(${p.id})">
-      <div class="product-img" style="background:${p.bg};" onclick="event.stopPropagation(); openZoom(${p.id})" title="Click to zoom">
-        ${p.imageUrl
-          ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.remove()">`
-          : `<span>${p.emoji}</span>`
-        }
-        <span class="zoom-hint">🔍</span>
-      </div>
-      <div class="product-body">
-        <span class="product-tag">${p.tag}</span>
-        <h3>${p.name}</h3>
-        <p>${p.description}</p>
-        <div class="product-footer">
-          <span class="product-price">${p.price}</span>
-          <div class="product-btns">
-            <button class="product-cart-btn" onclick="event.stopPropagation(); addToCart(${p.id})" title="Add to basket">
-              🛒
-            </button>
-            <button class="product-order-btn" onclick="event.stopPropagation(); openCheckout(${p.id})">
-              Buy Now
-            </button>
+  grid.innerHTML = products.map(p => {
+    const avg = getAvgRating(p.id);
+    const reviewCount = getReviews(p.id).length;
+    const starsHtml = avg > 0
+      ? `<div class="product-mini-stars" onclick="event.stopPropagation();openReviewModal(${p.id})" title="See reviews">${renderStars(avg)} <span class="review-count">(${reviewCount})</span></div>`
+      : `<div class="product-mini-stars product-no-reviews" onclick="event.stopPropagation();openReviewModal(${p.id})" title="Be the first to review"><span>☆☆☆☆☆</span></div>`;
+    const viewingHtml = _viewingMap[p.id] ? `<div class="social-proof" data-id="${p.id}">\ud83d\udc40 ${_viewingMap[p.id]} people viewing</div>` : '';
+    const wsClass = isWishlisted(p.id) ? 'wishlisted' : '';
+    return `
+    <div class="product-card-wrap" data-id="${p.id}" data-cat="${p.category}">
+      <div class="product-card" onclick="openCheckout(${p.id})">
+        ${viewingHtml}
+        <button class="wishlist-btn ${wsClass}" data-id="${p.id}" onclick="event.stopPropagation();toggleWishlist(${p.id},event)" title="${isWishlisted(p.id)?'Remove from wishlist':'Add to wishlist'}">\u2661</button>
+        <div class="product-img" style="background:${p.bg};" onclick="event.stopPropagation(); openZoom(${p.id})" title="Click to zoom">
+          ${p.imageUrl
+            ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.remove()">`
+            : `<span>${p.emoji}</span>`
+          }
+          <span class="zoom-hint">\ud83d\udd0d</span>
+        </div>
+        <div class="product-body">
+          <span class="product-tag">${p.tag}</span>
+          <h3>${p.name}</h3>
+          ${starsHtml}
+          <p>${p.description}</p>
+          <div class="product-footer">
+            <span class="product-price">${p.price}</span>
+            <div class="product-btns">
+              <button class="product-cart-btn" onclick="event.stopPropagation(); addToCart(${p.id})" title="Add to basket">
+                \ud83d\uded2
+              </button>
+              <button class="product-order-btn" onclick="event.stopPropagation(); openCheckout(${p.id})">
+                Buy Now
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
+
+  // Re-apply any active filters
+  if (shopFilterQuery || shopFilterCategory) applyShopFilters();
 }
 
 function goToProduct(url) {
@@ -234,6 +250,14 @@ function openCheckout(productId) {
   document.getElementById("checkout-btn-spinner").style.display = "none";
   document.getElementById("checkout-pay-btn").disabled = false;
 
+  // Reset gift wrap
+  giftWrapping = false;
+  const gwCheck = document.getElementById("gift-wrap-check");
+  if (gwCheck) gwCheck.checked = false;
+  const priceEl = document.getElementById("checkout-price-el");
+  if (priceEl) priceEl.textContent = "\u00a36.00";
+  document.getElementById("checkout-btn-text").textContent = "Pay Securely \u2014 \u00a36.00 \u2192";
+
   // Show modal
   document.getElementById("checkout-overlay").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -263,6 +287,7 @@ function safeOpen(url) {
 async function proceedToCheckout() {
   if (!checkoutProduct) return;
 
+  const priceP = giftWrapping ? 700 : 600;
   const btn = document.getElementById("checkout-pay-btn");
   document.getElementById("checkout-btn-text").style.display = "none";
   document.getElementById("checkout-btn-spinner").style.display = "";
@@ -272,7 +297,10 @@ async function proceedToCheckout() {
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productName: checkoutProduct.name, price: 600 })
+      body: JSON.stringify({
+        productName: checkoutProduct.name + (giftWrapping ? " + Gift Wrapping" : ""),
+        price: priceP
+      })
     });
     const data = await res.json();
 
@@ -599,9 +627,313 @@ window.addEventListener("scroll", () => {
 //  INIT
 // -------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
+  loadWishlist();
+  initSocialProof();
   renderProducts();
+  initNewsletter();
   // Update all WhatsApp links with the configured number
   document.querySelectorAll(`a[href*="YOUR_PHONE_NUMBER"]`).forEach(el => {
     el.href = el.href.replace("YOUR_PHONE_NUMBER", CONFIG.whatsappNumber);
   });
 });
+
+// ======================================================
+//  SEARCH & FILTER
+// ======================================================
+let shopFilterCategory = '';
+let shopFilterQuery = '';
+
+function filterShopProducts(val) {
+  shopFilterQuery = (val || '').toLowerCase();
+  const clearBtn = document.getElementById('shop-search-clear');
+  if (clearBtn) clearBtn.style.display = shopFilterQuery ? '' : 'none';
+  applyShopFilters();
+}
+
+function setShopCategory(cat, btn) {
+  shopFilterCategory = cat;
+  document.querySelectorAll('.shop-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  applyShopFilters();
+}
+
+function applyShopFilters() {
+  const wraps = document.querySelectorAll('#product-grid .product-card-wrap');
+  let visible = 0;
+  wraps.forEach(wrap => {
+    const id  = parseInt(wrap.dataset.id);
+    const cat = wrap.dataset.cat || '';
+    const p   = products.find(x => x.id === id);
+    if (!p) return;
+    const matchCat = !shopFilterCategory || cat === shopFilterCategory;
+    const matchQ   = !shopFilterQuery ||
+      p.name.toLowerCase().includes(shopFilterQuery) ||
+      p.description.toLowerCase().includes(shopFilterQuery) ||
+      p.category.toLowerCase().includes(shopFilterQuery);
+    const show = matchCat && matchQ;
+    wrap.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  const noRes = document.getElementById('search-no-results');
+  if (noRes) noRes.style.display = visible ? 'none' : 'block';
+}
+
+function clearShopSearch() {
+  shopFilterQuery = '';
+  const inp = document.getElementById('shop-search');
+  if (inp) inp.value = '';
+  const clearBtn = document.getElementById('shop-search-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  applyShopFilters();
+}
+
+// ======================================================
+//  WISHLIST
+// ======================================================
+let wishlist = [];
+
+function loadWishlist() {
+  try { wishlist = JSON.parse(localStorage.getItem('vk_wishlist') || '[]'); } catch(e) { wishlist = []; }
+  updateWishlistBadge();
+}
+
+function saveWishlist() {
+  localStorage.setItem('vk_wishlist', JSON.stringify(wishlist));
+  updateWishlistBadge();
+}
+
+function toggleWishlist(productId, e) {
+  if (e) e.stopPropagation();
+  const idx = wishlist.indexOf(productId);
+  if (idx > -1) {
+    wishlist.splice(idx, 1);
+  } else {
+    wishlist.push(productId);
+    showAddedToast('\u2665\ufe0f Saved to wishlist!');
+  }
+  saveWishlist();
+  document.querySelectorAll(`.wishlist-btn[data-id="${productId}"]`).forEach(b => {
+    b.classList.toggle('wishlisted', wishlist.includes(productId));
+  });
+  renderWishlistDrawer();
+}
+
+function isWishlisted(id) { return wishlist.includes(id); }
+
+function updateWishlistBadge() {
+  const badge = document.getElementById('wishlist-badge');
+  if (!badge) return;
+  badge.textContent = wishlist.length;
+  badge.style.display = wishlist.length ? '' : 'none';
+}
+
+function openWishlist() {
+  renderWishlistDrawer();
+  document.getElementById('wishlist-drawer').classList.add('open');
+  document.getElementById('wishlist-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeWishlist() {
+  document.getElementById('wishlist-drawer').classList.remove('open');
+  document.getElementById('wishlist-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeWishlistOverlay(e) {
+  if (e.target === document.getElementById('wishlist-overlay')) closeWishlist();
+}
+
+function renderWishlistDrawer() {
+  const container = document.getElementById('wishlist-items');
+  const empty     = document.getElementById('wishlist-empty');
+  if (!container) return;
+  container.querySelectorAll('.wishlist-item').forEach(el => el.remove());
+  const items = wishlist.map(id => products.find(p => p.id === id)).filter(Boolean);
+  if (!items.length) { empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  items.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'wishlist-item';
+    div.innerHTML = `
+      <div class="cart-item-img" style="background:${p.bg}">
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" onerror="this.remove()">` : `<span style="font-size:1.8rem">${p.emoji}</span>`}
+      </div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-price">${p.price}</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="product-order-btn" style="font-size:.74rem;padding:5px 10px" onclick="closeWishlist();openCheckout(${p.id})">Buy Now</button>
+          <button class="cart-clear-btn" style="font-size:.74rem;padding:5px 10px" onclick="toggleWishlist(${p.id})">Remove</button>
+        </div>
+      </div>`;
+    container.insertBefore(div, empty);
+  });
+}
+
+// ======================================================
+//  PRODUCT REVIEWS
+// ======================================================
+function getReviews(productId) {
+  try { return JSON.parse(localStorage.getItem('vk_reviews_' + productId) || '[]'); } catch(e) { return []; }
+}
+
+function saveReview(productId, rev) {
+  const arr = getReviews(productId);
+  arr.push(rev);
+  localStorage.setItem('vk_reviews_' + productId, JSON.stringify(arr));
+}
+
+function getAvgRating(productId) {
+  const arr = getReviews(productId);
+  if (!arr.length) return 0;
+  return arr.reduce((s, r) => s + r.rating, 0) / arr.length;
+}
+
+function renderStars(rating) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  let s = '';
+  for (let i = 1; i <= 5; i++) {
+    if (i <= full)            s += '<span class="star-filled">&#9733;</span>';
+    else if (i === full+1 && half) s += '<span class="star-half">&#9733;</span>';
+    else                      s += '<span class="star-empty">&#9733;</span>';
+  }
+  return s;
+}
+
+function openReviewModal(productId) {
+  const p = products.find(x => x.id === productId);
+  if (!p) return;
+  const reviews = getReviews(productId);
+  const reviewsHtml = reviews.length
+    ? reviews.slice(-6).reverse().map(r => `
+      <div class="review-item">
+        <div class="review-stars">${renderStars(r.rating)}</div>
+        <p class="review-text">&ldquo;${r.text}&rdquo;</p>
+        <small class="review-author">\u2014 ${r.name} &bull; ${new Date(r.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</small>
+      </div>`).join('')
+    : '<p style="color:#aaa;font-size:.85rem;padding:12px 0">No reviews yet \u2014 be the first!</p>';
+
+  const overlay = document.getElementById('review-modal');
+  overlay.innerHTML = `
+    <div class="review-modal-box" onclick="event.stopPropagation()">
+      <button class="review-modal-close" onclick="closeReviewModal()">\u2715</button>
+      <h3 style="margin-bottom:16px">\u2b50 Reviews \u2014 ${p.name}</h3>
+      <div class="review-list">${reviewsHtml}</div>
+      <div class="review-form-section">
+        <h4>Leave a Review</h4>
+        <div class="star-picker" id="star-picker">
+          ${[1,2,3,4,5].map(i => `<span class="star-pick" data-val="${i}" onclick="pickStar(${productId},${i})">\u2605</span>`).join('')}
+        </div>
+        <input type="text"     id="rev-name" placeholder="Your name (e.g. Sarah M.)" maxlength="40" style="width:100%;margin-bottom:8px"/>
+        <textarea id="rev-text" placeholder="Share your experience..." rows="3" maxlength="200" style="width:100%;resize:vertical"></textarea>
+        <button class="btn-primary" style="margin-top:10px" onclick="submitReview(${productId})">Submit Review</button>
+        <div id="rev-status" style="font-size:.82rem;margin-top:8px"></div>
+      </div>
+    </div>`;
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  window._reviewRating = 0;
+}
+
+function pickStar(productId, val) {
+  window._reviewRating = val;
+  document.querySelectorAll('.star-pick').forEach((s, i) => s.classList.toggle('active', i < val));
+}
+
+function closeReviewModal() {
+  document.getElementById('review-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function submitReview(productId) {
+  const name   = document.getElementById('rev-name').value.trim();
+  const text   = document.getElementById('rev-text').value.trim();
+  const rating = window._reviewRating || 0;
+  const st     = document.getElementById('rev-status');
+  if (!name)   return st.innerHTML = '<span style="color:#e74c3c">Please enter your name.</span>';
+  if (!text)   return st.innerHTML = '<span style="color:#e74c3c">Please write a review.</span>';
+  if (!rating) return st.innerHTML = '<span style="color:#e74c3c">Please select a star rating (1\u20135).</span>';
+  saveReview(productId, { rating, name, text, date: new Date().toISOString() });
+  st.innerHTML = '<span style="color:#27ae60">\u2705 Thank you for your review!</span>';
+  renderProducts();
+  setTimeout(closeReviewModal, 1600);
+}
+
+// ======================================================
+//  SOCIAL PROOF
+// ======================================================
+const _viewingMap = {};
+
+function initSocialProof() {
+  // Assign to random subset of products
+  products.forEach(p => {
+    if (Math.random() > 0.55) _viewingMap[p.id] = Math.floor(Math.random() * 7) + 2;
+  });
+  // Animate periodically
+  setInterval(() => {
+    Object.keys(_viewingMap).forEach(id => {
+      const delta = Math.random() > 0.5 ? 1 : -1;
+      _viewingMap[id] = Math.max(1, Math.min(12, (_viewingMap[id]||2) + delta));
+      const el = document.querySelector(`.social-proof[data-id="${id}"]`);
+      if (el) el.textContent = `\ud83d\udc40 ${_viewingMap[id]} people viewing`;
+    });
+  }, 22000);
+}
+
+// ======================================================
+//  GIFT WRAPPING
+// ======================================================
+let giftWrapping = false;
+
+function toggleGiftWrap() {
+  giftWrapping = !!(document.getElementById('gift-wrap-check') || {}).checked;
+  const priceEl  = document.getElementById('checkout-price-el');
+  const btnText  = document.getElementById('checkout-btn-text');
+  if (priceEl)  priceEl.textContent  = giftWrapping ? '\u00a37.00' : '\u00a36.00';
+  if (btnText)  btnText.textContent  = `Pay Securely \u2014 ${giftWrapping ? '\u00a37.00' : '\u00a36.00'} \u2192`;
+}
+
+// ======================================================
+//  NEWSLETTER POPUP
+// ======================================================
+function initNewsletter() {
+  if (localStorage.getItem('vk_newsletter_done')) return;
+  setTimeout(() => {
+    const el = document.getElementById('newsletter-overlay');
+    if (el) el.style.display = 'flex';
+  }, 12000); // 12 seconds
+}
+
+function closeNewsletter() {
+  const el = document.getElementById('newsletter-overlay');
+  if (el) el.style.display = 'none';
+  localStorage.setItem('vk_newsletter_done', '1');
+}
+
+function subscribeNewsletter() {
+  const email  = (document.getElementById('newsletter-email') || {}).value?.trim();
+  const result = document.getElementById('newsletter-result');
+  if (!email || !email.includes('@')) {
+    if (result) { result.style.display = ''; result.innerHTML = '<p class="nl-error">Please enter a valid email address.</p>'; }
+    return;
+  }
+  const subs = JSON.parse(localStorage.getItem('vk_newsletter_subs') || '[]');
+  subs.push({ email, date: new Date().toISOString() });
+  localStorage.setItem('vk_newsletter_subs', JSON.stringify(subs));
+  localStorage.setItem('vk_newsletter_done', '1');
+  const code = 'VERONIKA10';
+  document.getElementById('newsletter-email').style.display = 'none';
+  document.querySelector('.newsletter-submit-btn').style.display = 'none';
+  if (result) {
+    result.style.display = '';
+    result.innerHTML = `
+      <div class="nl-success">
+        <p style="color:#27ae60;font-weight:600;font-size:1rem">\ud83c\udf89 You're in!</p>
+        <p style="font-size:.85rem;margin:6px 0 10px">Your exclusive discount code:</p>
+        <div class="discount-code-pill">${code}</div>
+        <p style="font-size:.76rem;color:#888;margin-top:8px">Use at checkout for 10% off your first order.</p>
+      </div>`;
+  }
+}

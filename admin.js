@@ -247,6 +247,7 @@ async function loadOrdersPage(force = false) {
       invWrap.style.display = "block";
     }
     _ordersLoaded = true;
+    if (data.orders) _ordersData = data.orders;
   } catch (err) {
     errEl.innerHTML = `<div class="sync-note" style="border-color:var(--danger);margin-bottom:20px"><i class="fas fa-circle-xmark" style="color:var(--danger)"></i><span><strong>Could not load orders:</strong> ${escHtml(err.message)}</span></div>`;
     errEl.style.display = "block";
@@ -574,11 +575,29 @@ function loadShopSettings() {
     b.style.outlineOffset = active ? "2px" : "0";
   });
   updateBannerPreview();
+  // Scheduled dates
+  const startEl = document.getElementById("banner-start-date");
+  const endEl   = document.getElementById("banner-end-date");
+  if (startEl && banner.startDate) startEl.value = banner.startDate.slice(0,16);
+  if (endEl   && banner.endDate)   endEl.value   = banner.endDate.slice(0,16);
   const notif = JSON.parse(localStorage.getItem("vk_notif") || "{}");
   document.getElementById("notif-enabled").checked = !!notif.enabled;
   document.getElementById("notif-email").value = notif.email || "";
   const threshold = localStorage.getItem("vk_low_stock") || "3";
   document.getElementById("low-stock-threshold").value = threshold;
+  // Push notif button state
+  const pushBtn = document.getElementById("push-notif-btn");
+  const pushSt  = document.getElementById("push-notif-status");
+  if (pushBtn) {
+    if (localStorage.getItem("vk_push_notif") === "1" && Notification?.permission === "granted") {
+      pushBtn.innerHTML = `<i class="fas fa-bell-slash"></i> Disable Notifications`;
+      pushBtn.onclick = disablePushNotifications;
+    } else {
+      pushBtn.onclick = enablePushNotifications;
+    }
+  }
+  // Instagram posts
+  loadInstagramPosts();
 }
 function saveBanner() {
   const banner = {
@@ -683,6 +702,15 @@ function openAddProduct() {
   document.getElementById("edit-img").value   = "";
   document.getElementById("edit-cat").value   = "Bracelets";
   document.getElementById("edit-tag").value   = "New 🌸";
+  // Clear SEO + upload thumb
+  const seoTitleEl = document.getElementById("edit-seo-title");
+  const seoDescEl  = document.getElementById("edit-seo-desc");
+  const thumbEl    = document.getElementById("img-upload-thumb");
+  const stEl       = document.getElementById("img-upload-status");
+  if (seoTitleEl) seoTitleEl.value = "";
+  if (seoDescEl)  seoDescEl.value  = "";
+  if (thumbEl)    { thumbEl.src = ""; thumbEl.style.display = "none"; }
+  if (stEl)       stEl.innerHTML = "";
   document.getElementById("product-modal").classList.add("open");
   document.getElementById("edit-name").focus();
 }
@@ -700,6 +728,13 @@ function openEditProduct(index) {
   document.getElementById("edit-img").value   = p.imageUrl || "";
   document.getElementById("edit-cat").value   = p.category;
   document.getElementById("edit-tag").value   = p.tag;
+  // Clear upload preview
+  const thumbEl = document.getElementById("img-upload-thumb");
+  const stEl    = document.getElementById("img-upload-status");
+  if (thumbEl) { thumbEl.src = p.imageUrl || ""; thumbEl.style.display = p.imageUrl ? "block" : "none"; }
+  if (stEl)    stEl.innerHTML = "";
+  // SEO fields
+  loadSeoFields(p.id);
   document.getElementById("product-modal").classList.add("open");
 }
 
@@ -736,6 +771,7 @@ function saveProduct() {
   }
 
   persistLocal();
+  saveSeoFields(productObj.id);
   renderProductList(
     document.getElementById("prod-search").value,
     document.getElementById("cat-filter").value
@@ -973,12 +1009,44 @@ function loadSettingsPage() {
       cmd.textContent = "Save your keys above to generate this command.";
     }
   }
+  // GA4
+  const ga4Val = localStorage.getItem("vk_ga4_id") || "";
+  const ga4El  = document.getElementById("settings-ga4");
+  const ga4St  = document.getElementById("ga4-status");
+  if (ga4El) ga4El.value = ga4Val;
+  if (ga4St && ga4Val) { ga4St.textContent = `✅ GA4 active (${ga4Val})`; ga4St.style.color = "var(--success)"; }
+  // Meta Pixel
+  const fbVal = localStorage.getItem("vk_fb_pixel") || "";
+  const fbEl  = document.getElementById("settings-fbpixel");
+  const fbSt  = document.getElementById("fbpixel-status");
+  if (fbEl) fbEl.value = fbVal;
+  if (fbSt && fbVal) { fbSt.textContent = `✅ Meta Pixel active (${fbVal})`; fbSt.style.color = "var(--success)"; }
+  // Cloudinary
+  const clVal  = localStorage.getItem("vk_cloudinary_cloud")  || "";
+  const clPVal = localStorage.getItem("vk_cloudinary_preset") || "";
+  const clEl   = document.getElementById("settings-cloudinary");
+  const clPEl  = document.getElementById("settings-cloudinary-preset");
+  const clSt   = document.getElementById("cloudinary-status");
+  if (clEl)  clEl.value  = clVal;
+  if (clPEl) clPEl.value = clPVal;
+  if (clSt && clVal) { clSt.textContent = `✅ Cloudinary configured (${clVal})`; clSt.style.color = "var(--success)"; }
+  // Push Notifications
+  const pushBtn = document.getElementById("push-notif-btn");
+  if (pushBtn && localStorage.getItem("vk_push_notif") === "1" && Notification?.permission === "granted") {
+    pushBtn.innerHTML = `<i class="fas fa-bell-slash"></i> Disable Notifications`;
+    pushBtn.onclick = disablePushNotifications;
+    if (localStorage.getItem("vk_push_notif") === "1") startPushPolling();
+  }
 }
 
 function saveSettingsKeys() {
-  const oVal = document.getElementById("settings-openai").value.trim();
-  const rVal = document.getElementById("settings-runway")?.value.trim() || "";
-  const sVal = document.getElementById("settings-square").value.trim();
+  const oVal  = document.getElementById("settings-openai").value.trim();
+  const rVal  = document.getElementById("settings-runway")?.value.trim() || "";
+  const sVal  = document.getElementById("settings-square").value.trim();
+  const ga4Val = (document.getElementById("settings-ga4")?.value || "").trim();
+  const fbVal  = (document.getElementById("settings-fbpixel")?.value || "").trim();
+  const clVal  = (document.getElementById("settings-cloudinary")?.value || "").trim();
+  const clPVal = (document.getElementById("settings-cloudinary-preset")?.value || "").trim();
   const oSt  = document.getElementById("openai-key-status");
   const rSt  = document.getElementById("runway-key-status");
   const sSt  = document.getElementById("square-key-status");
@@ -1013,7 +1081,11 @@ function saveSettingsKeys() {
       saved++;
     }
   }
-  if (saved) { loadSettingsPage(); showToast(`✅ ${saved} key${saved>1?"s":""} saved!`); }
+  if (ga4Val)  { localStorage.setItem("vk_ga4_id",  ga4Val);  saved++; }
+  if (fbVal)   { localStorage.setItem("vk_fb_pixel", fbVal);   saved++; }
+  if (clVal)   { localStorage.setItem("vk_cloudinary_cloud",  clVal);  saved++; }
+  if (clPVal)  { localStorage.setItem("vk_cloudinary_preset", clPVal); }
+  if (saved) { loadSettingsPage(); showToast(`✅ ${saved} setting${saved>1?"s":""} saved!`); }
 }
 
 // ── Audience Strategy ────────────────────────────────────────────
@@ -1519,4 +1591,208 @@ async function generateVideo() {
 function copyVidUrl() {
   const url = document.getElementById("vid-output")?.src;
   if (url) { navigator.clipboard.writeText(url); showToast("Video URL copied!"); }
+}
+
+// ══════════════════════════════════════════════════════
+//  CSV EXPORT
+// ══════════════════════════════════════════════════════
+let _ordersData = [];
+
+function exportOrdersCSV() {
+  if (!_ordersData.length) {
+    showToast("No orders loaded. Open the Orders page first.", "var(--danger)");
+    return;
+  }
+  const rows = [["Date","Customer","Email","Address","Items","Total","Status","Tracking"]];
+  _ordersData.forEach(o => {
+    rows.push([
+      new Date(o.created_at).toLocaleDateString("en-GB"),
+      o.customer.name || "",
+      o.customer.email || "",
+      o.address || "",
+      (o.items||[]).map(i => `${i.qty}x ${i.name}`).join("; "),
+      "£" + (o.total || ""),
+      o.state || "",
+      o.tracking?.number ? `${o.tracking.carrier} ${o.tracking.number}` : ""
+    ]);
+  });
+  const csv  = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = `veronikak-orders-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast("📥 CSV downloaded!");
+}
+
+// ══════════════════════════════════════════════════════
+//  PRODUCT IMAGE UPLOAD (Cloudinary)
+// ══════════════════════════════════════════════════════
+function selectProductImage() {
+  const cloudName = localStorage.getItem("vk_cloudinary_cloud");
+  const preset    = localStorage.getItem("vk_cloudinary_preset") || "veronikak";
+  if (!cloudName) {
+    showToast("Add your Cloudinary cloud name in API Keys first.", "var(--danger)");
+    return;
+  }
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = "image/*";
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById("img-upload-status");
+    const thumbEl  = document.getElementById("img-upload-thumb");
+    if (statusEl) statusEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading…`;
+    const form = new FormData();
+    form.append("file", file);
+    form.append("upload_preset", preset);
+    try {
+      const res  = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method:"POST", body:form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || "Upload failed");
+      document.getElementById("edit-img").value = data.secure_url;
+      if (statusEl) statusEl.innerHTML = `<span style="color:var(--success)">✅ Uploaded!</span>`;
+      if (thumbEl)  { thumbEl.src = data.secure_url; thumbEl.style.display = "block"; }
+    } catch(err) {
+      if (statusEl) statusEl.innerHTML = `<span style="color:var(--danger)">❌ ${escHtml(err.message)}</span>`;
+    }
+  };
+  input.click();
+}
+
+// ══════════════════════════════════════════════════════
+//  PUSH NOTIFICATIONS
+// ══════════════════════════════════════════════════════
+let _pushOrderIds = new Set();
+let _pushInterval = null;
+
+async function enablePushNotifications() {
+  if (!("Notification" in window)) {
+    document.getElementById("push-notif-status").innerHTML = `<span style="color:var(--danger)">Browser does not support notifications.</span>`;
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  const btn  = document.getElementById("push-notif-btn");
+  const st   = document.getElementById("push-notif-status");
+  if (perm === "granted") {
+    localStorage.setItem("vk_push_notif", "1");
+    if (st)  st.innerHTML  = `<span style="color:var(--success)">✅ Enabled! You'll be notified of new orders while this tab is open.</span>`;
+    if (btn) { btn.innerHTML = `<i class="fas fa-bell-slash"></i> Disable Notifications`; btn.onclick = disablePushNotifications; }
+    startPushPolling();
+  } else {
+    if (st) st.innerHTML = `<span style="color:var(--danger)">Permission denied. Please allow notifications in browser settings.</span>`;
+  }
+}
+
+function disablePushNotifications() {
+  localStorage.removeItem("vk_push_notif");
+  if (_pushInterval) { clearInterval(_pushInterval); _pushInterval = null; }
+  const btn = document.getElementById("push-notif-btn");
+  const st  = document.getElementById("push-notif-status");
+  if (btn) { btn.innerHTML = `<i class="fas fa-bell"></i> Enable Notifications`; btn.onclick = enablePushNotifications; }
+  if (st)  st.innerHTML = "";
+}
+
+function startPushPolling() {
+  if (_pushInterval) return;
+  _pushInterval = setInterval(checkForNewOrders, 5 * 60 * 1000);
+}
+
+async function checkForNewOrders() {
+  if (Notification.permission !== "granted") return;
+  try {
+    const res  = await fetch(`${proxyBase()}/orders?type=all`);
+    const data = await res.json();
+    if (!data.orders) return;
+    const existing = _pushOrderIds.size > 0;
+    data.orders.forEach(o => {
+      if (!_pushOrderIds.has(o.id)) {
+        if (existing) {
+          new Notification("🛍️ New Order — VeronikaK!", {
+            body: `${o.customer.name} ordered ${o.items[0]?.name || "an item"} — £${o.total}`,
+            icon: "icons/icon-192.png"
+          });
+        }
+        _pushOrderIds.add(o.id);
+      }
+    });
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════
+//  SEO PER-PRODUCT  (saved to products + vk_seo_<id>)
+// ══════════════════════════════════════════════════════
+function loadSeoFields(productId) {
+  const seo = JSON.parse(localStorage.getItem("vk_seo_" + productId) || "{}");
+  const titleEl = document.getElementById("edit-seo-title");
+  const descEl  = document.getElementById("edit-seo-desc");
+  if (titleEl) titleEl.value = seo.title || "";
+  if (descEl)  descEl.value  = seo.desc  || "";
+}
+
+function saveSeoFields(productId) {
+  const title = (document.getElementById("edit-seo-title") || {}).value?.trim() || "";
+  const desc  = (document.getElementById("edit-seo-desc")  || {}).value?.trim() || "";
+  if (title || desc) {
+    localStorage.setItem("vk_seo_" + productId, JSON.stringify({ title, desc }));
+  } else {
+    localStorage.removeItem("vk_seo_" + productId);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  SCHEDULED BANNER
+// ══════════════════════════════════════════════════════
+function saveBannerSchedule() {
+  const start = document.getElementById("banner-start-date")?.value || "";
+  const end   = document.getElementById("banner-end-date")?.value   || "";
+  const b     = JSON.parse(localStorage.getItem("vk_banner") || "{}");
+  b.startDate = start; b.endDate = end;
+  localStorage.setItem("vk_banner", JSON.stringify(b));
+  const st = document.getElementById("banner-schedule-status");
+  if (st) st.innerHTML = `<span style="color:var(--success)">✅ Schedule saved!</span>`;
+  setTimeout(() => { if (st) st.innerHTML = ""; }, 3000);
+}
+
+// ══════════════════════════════════════════════════════
+//  INSTAGRAM POSTS
+// ══════════════════════════════════════════════════════
+function loadInstagramPosts() {
+  const posts = JSON.parse(localStorage.getItem("vk_instagram_posts") || "[]");
+  const list  = document.getElementById("insta-posts-list");
+  if (!list) return;
+  list.innerHTML = "";
+  posts.forEach((p, i) => addInstaPostRow(p));
+}
+
+function addInstaPostRow(data) {
+  const list = document.getElementById("insta-posts-list");
+  if (!list) return;
+  const div = document.createElement("div");
+  div.className = "insta-post-row";
+  div.innerHTML = `
+    <input type="url" class="insta-url" placeholder="Instagram post URL (https://instagram.com/p/...)" value="${escHtml(data?.url||'')}"/>
+    <input type="url" class="insta-img" placeholder="Thumbnail image URL (optional)" value="${escHtml(data?.img||'')}"/>
+    <input type="text" class="insta-cap" placeholder="Caption (optional, max 80 chars)" maxlength="80" value="${escHtml(data?.caption||'')}"/>
+    <button class="btn-danger" style="padding:8px 12px;font-size:.8rem" onclick="this.closest('.insta-post-row').remove()"><i class="fas fa-trash"></i></button>`;
+  list.appendChild(div);
+}
+
+function saveInstagramPosts() {
+  const rows  = document.querySelectorAll(".insta-post-row");
+  const posts = [];
+  rows.forEach(r => {
+    const url = r.querySelector(".insta-url").value.trim();
+    if (!url) return;
+    posts.push({
+      url,
+      img:     r.querySelector(".insta-img").value.trim(),
+      caption: r.querySelector(".insta-cap").value.trim()
+    });
+  });
+  localStorage.setItem("vk_instagram_posts", JSON.stringify(posts));
+  const st = document.getElementById("insta-status");
+  if (st) st.innerHTML = `<span style="color:var(--success)">✅ ${posts.length} post(s) saved! Reload your shop to see the Instagram feed.</span>`;
+  setTimeout(() => { if (st) st.innerHTML = ""; }, 4000);
 }

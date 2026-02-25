@@ -4,6 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>VeronikaK – Handmade Jewellery</title>
+  <meta name="description" content="Handmade jewellery — beaded bracelets, braided bracelets, kids jewellery & earrings. All just £6. Handcrafted by Veronika.">
+  <meta property="og:title" content="VeronikaK – Handmade Jewellery">
+  <meta property="og:description" content="Handmade bracelets, earrings & kids jewellery — all just £6.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sinuguru.github.io/Shop">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#e91e8c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="VeronikaK"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
   <link rel="stylesheet" href="styles.css" />
   <script>
     // Sync colour theme from admin skin preference (runs before paint to avoid flash)
@@ -14,6 +26,25 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script>
+  // Inject GA4 + Meta Pixel dynamically from admin settings
+  (function(){
+    const gid = localStorage.getItem("vk_ga4_id");
+    if (gid) {
+      const s = document.createElement("script");
+      s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + gid;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);} window.gtag = gtag;
+      gtag("js", new Date()); gtag("config", gid);
+    }
+    const fbid = localStorage.getItem("vk_fb_pixel");
+    if (fbid) {
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', fbid); fbq('track', 'PageView');
+    }
+  })();
+  </script>
 </head>
 <body>
 
@@ -27,9 +58,14 @@
       try {
         const b = JSON.parse(localStorage.getItem("vk_banner")||"{}");
         if (b.enabled && b.text) {
+          // Check scheduled dates
+          const now = Date.now();
+          if (b.startDate && new Date(b.startDate).getTime() > now) return;
+          if (b.endDate   && new Date(b.endDate).getTime()   < now) return;
           const el = document.getElementById("shop-banner");
           document.getElementById("shop-banner-text").textContent = b.text;
           el.classList.add("banner-" + (b.color||"pink"));
+          if (b.bgImage) el.style.backgroundImage = `url(${b.bgImage})`;
           el.style.display = "flex";
         }
       } catch(e){}
@@ -46,6 +82,9 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-right">
+      <button class="wishlist-nav-btn" id="wishlist-nav-btn" onclick="openWishlist()" title="My Wishlist">
+        ♡ <span class="wishlist-badge" id="wishlist-badge" style="display:none">0</span>
+      </button>
       <button class="cart-nav-btn" id="cart-nav-btn" onclick="openCart()" title="Shopping Basket">
         🛒 <span class="cart-badge" id="cart-badge" style="display:none">0</span>
       </button>
@@ -95,8 +134,30 @@
       <h2>Shop All <span class="highlight">Jewellery</span></h2>
       <p>Bracelets, earrings &amp; kids jewellery — all handmade, all just £6. Click any item to buy directly.</p>
     </div>
+
+    <!-- SEARCH + FILTER -->
+    <div class="shop-search-wrap">
+      <div class="shop-search-inner">
+        <i class="fas fa-search shop-search-icon"></i>
+        <input type="text" id="shop-search" class="shop-search-input" placeholder="Search jewellery..." oninput="filterShopProducts(this.value)" autocomplete="off"/>
+        <button class="shop-search-clear" onclick="clearShopSearch()" id="shop-search-clear" style="display:none">×</button>
+      </div>
+      <div class="shop-filter-btns">
+        <button class="shop-filter-btn active" onclick="setShopCategory('',this)">All</button>
+        <button class="shop-filter-btn" onclick="setShopCategory('Bracelets',this)">Bracelets</button>
+        <button class="shop-filter-btn" onclick="setShopCategory('Braided',this)">Braided</button>
+        <button class="shop-filter-btn" onclick="setShopCategory('Kids',this)">👶 Kids</button>
+        <button class="shop-filter-btn" onclick="setShopCategory('Earrings',this)">Earrings</button>
+      </div>
+    </div>
+
     <div class="product-grid" id="product-grid">
       <!-- Products injected by JS -->
+    </div>
+    <div id="search-no-results" style="display:none;text-align:center;padding:40px 20px;color:#888">
+      <div style="font-size:3rem;margin-bottom:12px">🔍</div>
+      <p>No products found. Try a different search!</p>
+      <button class="btn-primary" style="margin-top:16px" onclick="clearShopSearch()">Clear Search</button>
     </div>
   </section>
 
@@ -171,6 +232,21 @@
         <p>"Great quality, super affordable. I've bought 5 already and will keep coming back!"</p>
         <strong>— Jenny K.</strong>
       </div>
+    </div>
+  </section>
+
+  <!-- INSTAGRAM FEED (shown if posts are configured) -->
+  <section class="instagram-section" id="instagram-section" style="display:none">
+    <div class="section-header">
+      <span class="section-badge">Follow Us</span>
+      <h2>Our <span class="highlight">Instagram</span></h2>
+      <p><a href="https://instagram.com/sinumguru" target="_blank" style="color:var(--pink)">@sinumguru</a> — follow for daily jewellery inspiration ✨</p>
+    </div>
+    <div class="instagram-grid" id="instagram-grid"></div>
+    <div style="text-align:center;margin-top:24px">
+      <a href="https://instagram.com/sinumguru" target="_blank" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px">
+        <i class="fab fa-instagram"></i> Follow @sinumguru
+      </a>
     </div>
   </section>
 
@@ -273,8 +349,38 @@
     </div>
   </div>
 
-  <!-- CART DRAWER -->
-  <div class="cart-overlay" id="cart-overlay" onclick="closeCartOverlay(event)"></div>
+  <!-- WISHLIST DRAWER -->
+  <div class="cart-overlay" id="wishlist-overlay" onclick="closeWishlistOverlay(event)"></div>
+  <div class="cart-drawer" id="wishlist-drawer">
+    <div class="cart-header">
+      <h3>♥️ Wishlist</h3>
+      <button class="cart-close-btn" onclick="closeWishlist()">✕</button>
+    </div>
+    <div class="cart-items" id="wishlist-items">
+      <div class="cart-empty" id="wishlist-empty">
+        <div style="font-size:3rem">♡</div>
+        <p>Your wishlist is empty</p>
+        <button class="btn-primary" style="margin-top:16px" onclick="closeWishlist()">Browse Products</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEWSLETTER POPUP -->
+  <div class="newsletter-overlay" id="newsletter-overlay" style="display:none" onclick="if(event.target===this)closeNewsletter()">
+    <div class="newsletter-modal">
+      <button class="newsletter-close" onclick="closeNewsletter()">✕</button>
+      <div class="newsletter-emoji">💌</div>
+      <h2>Get 10% Off!</h2>
+      <p>Subscribe to our newsletter and receive an exclusive discount code on your first order.</p>
+      <input type="email" id="newsletter-email" placeholder="your@email.com" autocomplete="email"/>
+      <button class="btn-primary newsletter-submit-btn" onclick="subscribeNewsletter()">Get My Discount →</button>
+      <div id="newsletter-result" style="display:none"></div>
+      <p class="newsletter-skip" onclick="closeNewsletter()">No thanks, I don't like discounts</p>
+    </div>
+  </div>
+
+  <!-- PRODUCT REVIEW MODAL -->
+  <div class="review-modal-overlay" id="review-modal" style="display:none" onclick="if(event.target===this)closeReviewModal()"></div>
   <div class="cart-drawer" id="cart-drawer">
     <div class="cart-header">
       <h3>🛒 Your Basket</h3>
@@ -308,7 +414,7 @@
       <div class="checkout-body">
         <span class="checkout-tag" id="checkout-tag"></span>
         <h3 id="checkout-name"></h3>
-        <div class="checkout-price">£6.00</div>
+        <div class="checkout-price" id="checkout-price-el">£6.00</div>
         <p class="checkout-desc" id="checkout-desc"></p>
         <div class="checkout-badges">
           <span>🍎 Apple Pay</span>
@@ -316,6 +422,11 @@
           <span>💳 Clearpay</span>
           <span>🔒 Secure</span>
         </div>
+        <!-- GIFT WRAPPING -->
+        <label class="gift-wrap-label">
+          <input type="checkbox" id="gift-wrap-check" onchange="toggleGiftWrap()"/>
+          <span>🎁 Add gift wrapping <span style="font-size:.85em;color:var(--gray)">+£1.00</span></span>
+        </label>
         <button class="checkout-pay-btn" id="checkout-pay-btn" onclick="proceedToCheckout()">
           <span id="checkout-btn-text">Pay Securely — £6.00 →</span>
           <span id="checkout-btn-spinner" style="display:none">⏳ Creating checkout...</span>
@@ -344,5 +455,27 @@
 
   <script src="products.js"></script>
   <script src="app.js"></script>
+  <script>
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+    // Load Instagram feed if configured
+    (function(){
+      const posts = JSON.parse(localStorage.getItem('vk_instagram_posts') || '[]');
+      if (!posts.length) return;
+      const section = document.getElementById('instagram-section');
+      const grid    = document.getElementById('instagram-grid');
+      if (!section || !grid) return;
+      section.style.display = '';
+      grid.innerHTML = posts.slice(0, 9).map(p => `
+        <a class="insta-tile" href="${p.url}" target="_blank" rel="noopener" style="background:${p.bg||'#f9c5d1'}">
+          ${p.img ? `<img src="${p.img}" alt="${p.caption||'Instagram post'}" loading="lazy"/>` : `<div class="insta-tile-emoji">\ud83d\udcf8</div>`}
+          ${p.caption ? `<div class="insta-tile-caption">${p.caption.substring(0,60)}${p.caption.length>60?'...':''}</div>` : ''}
+        </a>`).join('');
+    })();
+  </script>
 </body>
 </html>
