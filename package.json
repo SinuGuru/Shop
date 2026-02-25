@@ -2,6 +2,7 @@
   "name": "veronikak-shop",
   "version": "1.0.0",
   "description": "VeronikaK Shop tools",
+  "type": "commonjs",
   "scripts": {
     "sync": "node sync-products.js"
   },
