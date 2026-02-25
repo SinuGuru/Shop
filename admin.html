@@ -602,22 +602,41 @@
         <!-- Announcement Banner -->
         <div class="dash-card">
           <h3 style="margin-bottom:4px"><i class="fas fa-bullhorn" style="color:var(--pink)"></i> Announcement Banner</h3>
-          <p style="font-size:.82rem;color:var(--gray);margin-bottom:16px;line-height:1.6">Shows a dismissable banner at the top of the shop. Saved in the browser — customers on the same device will see it.</p>
-          <label class="toggle-row">
+          <p style="font-size:.82rem;color:var(--gray);margin-bottom:14px;line-height:1.6">Displays a full-width dismissable banner at the top of your shop.</p>
+
+          <!-- Live preview -->
+          <div id="banner-preview" style="display:none;margin-bottom:14px;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+            <div id="banner-preview-inner" style="padding:11px 36px 11px 16px;font-size:.85rem;font-family:'Poppins',sans-serif;font-weight:500;text-align:center;position:relative">
+              <span id="banner-preview-text"></span>
+              <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);opacity:.5;font-size:1rem">×</span>
+            </div>
+          </div>
+
+          <label class="toggle-row" style="margin-bottom:14px">
             <span>Show banner on shop</span>
-            <input type="checkbox" id="banner-enabled" class="toggle-check"/>
+            <input type="checkbox" id="banner-enabled" class="toggle-check" onchange="updateBannerPreview()"/>
             <span class="toggle-slider"></span>
           </label>
-          <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
-            <input type="text" id="banner-text" placeholder="🚚 Free shipping this week on all orders!" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none"/>
-            <select id="banner-color" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none">
-              <option value="pink">Hot Pink</option>
-              <option value="rose">Deep Rose</option>
-              <option value="gold">🌟 Gold / Sale</option>
-              <option value="green">✅ Green / Info</option>
-              <option value="blue">💧 Blue / Calm</option>
-            </select>
-            <button class="btn-primary" style="align-self:flex-start" onclick="saveBanner()"><i class="fas fa-save"></i> Save Banner</button>
+
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <textarea id="banner-text" rows="2" placeholder="🚚 Free shipping this week on all orders over £20!" oninput="updateBannerPreview()" style="padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-size:.88rem;font-family:'Poppins',sans-serif;outline:none;resize:vertical;width:100%;box-sizing:border-box"></textarea>
+
+            <button class="btn-outline" onclick="generateBannerAI()" id="banner-ai-btn" style="align-self:flex-start">
+              <i class="fas fa-wand-magic-sparkles"></i> AI Generate
+            </button>
+            <div id="banner-ai-suggestions" style="display:none;flex-wrap:wrap;gap:8px"></div>
+
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:2px">
+              <span style="font-size:.8rem;color:var(--gray)">Colour:</span>
+              <button class="banner-swatch" data-color="pink"  onclick="selectBannerColor(this)" style="background:linear-gradient(90deg,#fce4ec,#f8bbd0);color:#880e4f">💗 Pink</button>
+              <button class="banner-swatch" data-color="rose"  onclick="selectBannerColor(this)" style="background:linear-gradient(90deg,#f48fb1,#ec407a);color:#fff">🌹 Rose</button>
+              <button class="banner-swatch" data-color="gold"  onclick="selectBannerColor(this)" style="background:linear-gradient(90deg,#fff8e1,#ffe082);color:#5d4037">🌟 Gold</button>
+              <button class="banner-swatch" data-color="green" onclick="selectBannerColor(this)" style="background:linear-gradient(90deg,#e8f5e9,#a5d6a7);color:#1b5e20">✅ Green</button>
+              <button class="banner-swatch" data-color="blue"  onclick="selectBannerColor(this)" style="background:linear-gradient(90deg,#e3f2fd,#90caf9);color:#0d47a1">💧 Blue</button>
+            </div>
+            <input type="hidden" id="banner-color" value="pink"/>
+
+            <button class="btn-primary" style="align-self:flex-start;margin-top:4px" onclick="saveBanner()"><i class="fas fa-save"></i> Save Banner</button>
             <div id="banner-status" style="font-size:.82rem"></div>
           </div>
         </div>

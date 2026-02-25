@@ -538,6 +538,42 @@ section { padding: 80px 60px; }
 .popup p { color: var(--gray); font-size: 0.92rem; line-height: 1.6; margin-bottom: 24px; }
 
 /* ========================
+   ANNOUNCEMENT BANNER
+======================== */
+#shop-banner {
+  width: 100%;
+  padding: 11px 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: .88rem;
+  font-weight: 500;
+  letter-spacing: .01em;
+  line-height: 1.4;
+  position: relative;
+  z-index: 200;
+  animation: bannerSlide .35s ease;
+}
+@keyframes bannerSlide {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#shop-banner.banner-pink  { background: linear-gradient(90deg,#fce4ec,#f8bbd0); color: #880e4f; }
+#shop-banner.banner-rose  { background: linear-gradient(90deg,#f48fb1,#ec407a); color: #fff; }
+#shop-banner.banner-gold  { background: linear-gradient(90deg,#fff8e1,#ffe082); color: #5d4037; }
+#shop-banner.banner-green { background: linear-gradient(90deg,#e8f5e9,#a5d6a7); color: #1b5e20; }
+#shop-banner.banner-blue  { background: linear-gradient(90deg,#e3f2fd,#90caf9); color: #0d47a1; }
+.banner-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.2rem; line-height: 1; padding: 2px 6px;
+  color: inherit; opacity: .6;
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  border-radius: 50%; transition: opacity .15s, background .15s;
+}
+.banner-close:hover { opacity: 1; background: rgba(0,0,0,.1); }
+
+/* ========================
    SCROLLBAR
 ======================== */
 ::-webkit-scrollbar { width: 6px; }

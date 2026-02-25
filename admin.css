@@ -593,19 +593,18 @@ html.theme-ocean {
 .cat-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: .83rem; color: var(--text); }
 .cat-row:last-child { border-bottom: none; }
 
-/* Announcement banner (in shop index.html) */
-#shop-banner {
-  width: 100%; padding: 10px 20px;
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  font-size: .88rem; font-family: 'Poppins', sans-serif;
-  position: relative; z-index: 200;
+/* Banner card swatches + AI suggestions */
+.banner-swatch {
+  padding: 5px 13px; border-radius: 20px; border: 2px solid transparent;
+  font-size: .75rem; font-weight: 600; cursor: pointer;
+  font-family: 'Poppins', sans-serif; transition: all .15s;
+  white-space: nowrap;
 }
-#shop-banner.banner-pink   { background: #fce7f3; color: #831843; }
-#shop-banner.banner-gold   { background: #fef9c3; color: #713f12; }
-#shop-banner.banner-green  { background: #dcfce7; color: #14532d; }
-#shop-banner.banner-blue   { background: #dbeafe; color: #1e3a5f; }
-#shop-banner .banner-close {
-  background: none; border: none; cursor: pointer;
-  font-size: 1.1rem; line-height: 1; padding: 0 2px;
-  color: inherit; opacity: .7; position: absolute; right: 14px;
+.banner-suggestion {
+  padding: 6px 13px; border-radius: 20px;
+  border: 1.5px solid var(--primary); color: var(--primary);
+  background: transparent; cursor: pointer;
+  font-size: .78rem; font-family: 'Poppins', sans-serif;
+  transition: all .15s; text-align: left; line-height: 1.4;
 }
+.banner-suggestion:hover { background: var(--primary); color: #fff; }

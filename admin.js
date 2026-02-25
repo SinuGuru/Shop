@@ -496,11 +496,82 @@ async function deleteDiscount(id, btn) {
 }
 
 // ── Shop Settings ──────────────────────────────────────────
+const BANNER_GRADIENTS = {
+  pink:  "linear-gradient(90deg,#fce4ec,#f8bbd0)",
+  rose:  "linear-gradient(90deg,#f48fb1,#ec407a)",
+  gold:  "linear-gradient(90deg,#fff8e1,#ffe082)",
+  green: "linear-gradient(90deg,#e8f5e9,#a5d6a7)",
+  blue:  "linear-gradient(90deg,#e3f2fd,#90caf9)"
+};
+const BANNER_TEXT_COLORS = { pink:"#880e4f", rose:"#fff", gold:"#5d4037", green:"#1b5e20", blue:"#0d47a1" };
+
+function updateBannerPreview() {
+  const text    = (document.getElementById("banner-text").value || "").trim();
+  const color   = document.getElementById("banner-color").value || "pink";
+  const enabled = document.getElementById("banner-enabled").checked;
+  const previewEl = document.getElementById("banner-preview");
+  const innerEl   = document.getElementById("banner-preview-inner");
+  const textEl    = document.getElementById("banner-preview-text");
+  innerEl.style.background = BANNER_GRADIENTS[color] || BANNER_GRADIENTS.pink;
+  innerEl.style.color      = BANNER_TEXT_COLORS[color] || BANNER_TEXT_COLORS.pink;
+  textEl.textContent        = text || "Your banner will appear here";
+  previewEl.style.display   = (enabled || text) ? "block" : "none";
+}
+
+function selectBannerColor(btn) {
+  document.getElementById("banner-color").value = btn.dataset.color;
+  document.querySelectorAll(".banner-swatch").forEach(b => { b.style.outline = "none"; b.style.outlineOffset = "0"; });
+  btn.style.outline = "2.5px solid var(--primary)";
+  btn.style.outlineOffset = "2px";
+  updateBannerPreview();
+}
+
+async function generateBannerAI() {
+  const btn   = document.getElementById("banner-ai-btn");
+  const sugEl = document.getElementById("banner-ai-suggestions");
+  btn.disabled = true;
+  btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Generating...";
+  sugEl.style.display = "none"; sugEl.innerHTML = "";
+  try {
+    const text = await callGPT(
+      "Generate exactly 3 short announcement banner texts for VeronikaK, a UK handmade jewellery shop. " +
+      "Each must be under 12 words, include a relevant emoji, and be exciting, professional and punchy. " +
+      "Topics can include: promotions, free shipping, new arrivals, limited stock, seasonal events. " +
+      "Return ONLY the 3 banners, one per line, no numbering, no extra text."
+    );
+    const lines = text.split("\n").map(l => l.replace(/^\d+[\.\)\-]\s*/,"").trim()).filter(Boolean).slice(0,3);
+    if (!lines.length) throw new Error("No suggestions returned");
+    sugEl.innerHTML = lines.map(l =>
+      `<button class="banner-suggestion" onclick="useBannerSuggestion(this)" data-text="${escHtml(l)}">${escHtml(l)}</button>`
+    ).join("");
+    sugEl.style.display = "flex";
+  } catch(e) {
+    sugEl.innerHTML = `<span style="color:var(--danger);font-size:.82rem">${escHtml(e.message)}</span>`;
+    sugEl.style.display = "flex";
+  }
+  btn.disabled = false; btn.innerHTML = "<i class='fas fa-wand-magic-sparkles'></i> AI Generate";
+}
+
+function useBannerSuggestion(btn) {
+  document.getElementById("banner-text").value = btn.dataset.text;
+  updateBannerPreview();
+  document.querySelectorAll(".banner-suggestion").forEach(b => b.style.background = "");
+  btn.style.background = "var(--primary)"; btn.style.color = "#fff";
+}
+
 function loadShopSettings() {
   const banner = JSON.parse(localStorage.getItem("vk_banner") || "{}");
   document.getElementById("banner-enabled").checked = !!banner.enabled;
   document.getElementById("banner-text").value   = banner.text  || "";
-  document.getElementById("banner-color").value  = banner.color || "pink";
+  const color = banner.color || "pink";
+  document.getElementById("banner-color").value  = color;
+  // highlight the matching swatch
+  document.querySelectorAll(".banner-swatch").forEach(b => {
+    const active = b.dataset.color === color;
+    b.style.outline      = active ? "2.5px solid var(--primary)" : "none";
+    b.style.outlineOffset = active ? "2px" : "0";
+  });
+  updateBannerPreview();
   const notif = JSON.parse(localStorage.getItem("vk_notif") || "{}");
   document.getElementById("notif-enabled").checked = !!notif.enabled;
   document.getElementById("notif-email").value = notif.email || "";
@@ -514,7 +585,7 @@ function saveBanner() {
     color:   document.getElementById("banner-color").value
   };
   localStorage.setItem("vk_banner", JSON.stringify(banner));
-  document.getElementById("banner-status").innerHTML = `<span style="color:var(--success)">✅ Banner saved! Reload the shop to see it.</span>`;
+  document.getElementById("banner-status").innerHTML = `<span style="color:var(--success)">✅ Banner saved! Open the shop tab and refresh to see it.</span>`;
 }
 function saveNotifSettings() {
   const notif = {
